@@ -1,8 +1,9 @@
 package be.enkidu.vinyles;
 
-import be.enkidu.vinyles.config.AsyncSyncConfiguration;
-import be.enkidu.vinyles.config.EmbeddedSQL;
-import be.enkidu.vinyles.config.JacksonConfiguration;
+import be.enkidu.vinyles.base.EnkiduVinylesServiceApp;
+import be.enkidu.vinyles.base.config.AsyncSyncConfiguration;
+import be.enkidu.vinyles.base.config.EmbeddedSQL;
+import be.enkidu.vinyles.base.config.JacksonConfiguration;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
