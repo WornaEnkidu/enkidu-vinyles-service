@@ -3,12 +3,23 @@ package be.enkidu.vinyles.business.service;
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ARTISTE_COLUMNS;
 
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ArtisteService {
+
+    private TemporaryDataStoreService temporaryDataStoreService;
+
+    public ArtisteService(TemporaryDataStoreService temporaryDataStoreService) {
+        this.temporaryDataStoreService = temporaryDataStoreService;
+    }
+
+    public ArtisteDTO saveArtiste(ArtisteDTO artisteDTO) throws IOException {
+        return this.temporaryDataStoreService.saveArtiste(artisteDTO);
+    }
 
     public List<Map<String, String>> exportArtistes() {
         List<ArtisteDTO> artistesDTO = getArtistesDTO(); // Récupère la liste des DTO
