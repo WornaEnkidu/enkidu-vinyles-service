@@ -6,42 +6,42 @@ import java.util.Map;
 public class ExcelColumnConstants {
 
     // Constante pour les colonnes de la feuille Artistes
-    public static final Map<String, Integer> ARTISTE_COLUMNS;
+    public static final Map<String, String> ARTISTE_COLUMNS;
 
     static {
         ARTISTE_COLUMNS = new LinkedHashMap<>();
-        ARTISTE_COLUMNS.put("ID", 0);
-        ARTISTE_COLUMNS.put("Nom", 1);
-        ARTISTE_COLUMNS.put("Prenom", 2);
-        ARTISTE_COLUMNS.put("Date Naissance", 3);
-        ARTISTE_COLUMNS.put("Date Décès", 4);
+        ARTISTE_COLUMNS.put("ID", "ID");
+        ARTISTE_COLUMNS.put("NOM", "Nom");
+        ARTISTE_COLUMNS.put("PRENOM", "Prenom");
+        ARTISTE_COLUMNS.put("DATE_NAISSANCE", "Date Naissance");
+        ARTISTE_COLUMNS.put("DATE_DECES", "Date Décès");
     }
 
     // Constante pour les colonnes de la feuille Titres
-    public static final Map<String, Integer> TITRE_COLUMNS;
+    public static final Map<String, String> TITRE_COLUMNS;
 
     static {
         TITRE_COLUMNS = new LinkedHashMap<>();
-        TITRE_COLUMNS.put("ID", 0);
-        TITRE_COLUMNS.put("Nom", 1);
-        TITRE_COLUMNS.put("Durée", 2);
-        TITRE_COLUMNS.put("Artistes IDs", 3);
+        TITRE_COLUMNS.put("ID", "ID");
+        TITRE_COLUMNS.put("NOM", "Nom");
+        TITRE_COLUMNS.put("DUREE", "Durée");
+        TITRE_COLUMNS.put("ARTISTE_IDS", "Artiste IDs");
     }
 
     // Constante pour les colonnes de la feuille Albums
-    public static final Map<String, Integer> ALBUM_COLUMNS;
+    public static final Map<String, String> ALBUM_COLUMNS;
 
     static {
         ALBUM_COLUMNS = new LinkedHashMap<>();
-        ALBUM_COLUMNS.put("ID", 0);
-        ALBUM_COLUMNS.put("Nom", 1);
-        ALBUM_COLUMNS.put("Artiste IDs", 2);
-        ALBUM_COLUMNS.put("Titre IDs", 3);
-        ALBUM_COLUMNS.put("Taille", 4);
-        ALBUM_COLUMNS.put("Status", 5);
+        ALBUM_COLUMNS.put("ID", "ID");
+        ALBUM_COLUMNS.put("NOM", "Nom");
+        ALBUM_COLUMNS.put("ARTISTE_IDS", "Artiste IDs");
+        ALBUM_COLUMNS.put("TITRE_IDS", "Titre IDs");
+        ALBUM_COLUMNS.put("TAILLE", "Taille");
+        ALBUM_COLUMNS.put("STATUS", "Status");
     }
 
-    public static int getPositionOfKey(Map<String, Integer> map, String key) {
+    public static int getPositionOfKey(Map<String, String> map, String key) {
         int position = 0;
         for (String currentKey : map.keySet()) {
             if (currentKey.equals(key)) {

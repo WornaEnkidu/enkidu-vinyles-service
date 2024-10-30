@@ -21,16 +21,16 @@ public class TitreService {
             TITRE_COLUMNS.forEach((columnName, index) -> {
                 switch (columnName) {
                     case "ID" -> titreMap.put("ID", titre.getId() != null ? titre.getId().toString() : "");
-                    case "Nom" -> titreMap.put("Nom", titre.getNom());
-                    case "Durée" -> {
+                    case "NOM" -> titreMap.put("NOM", titre.getNom());
+                    case "DUREE" -> {
                         String duree = titre.getDuree() != null
                             ? String.format("%02d:%02d", titre.getDuree() / 60, titre.getDuree() % 60)
                             : "";
-                        titreMap.put("Durée", duree);
+                        titreMap.put("DUREE", duree);
                     }
-                    case "Artistes IDs" -> {
+                    case "ARTISTE_IDS" -> {
                         String artistesIds = String.join(",", titre.getArtistesIds().stream().map(String::valueOf).toList());
-                        titreMap.put("Artistes IDs", artistesIds);
+                        titreMap.put("ARTISTE_IDS", artistesIds);
                     }
                 }
             });

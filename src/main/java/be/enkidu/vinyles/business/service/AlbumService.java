@@ -22,16 +22,16 @@ public class AlbumService {
             ALBUM_COLUMNS.forEach((columnName, index) -> {
                 switch (columnName) {
                     case "ID" -> albumMap.put("ID", album.getId() != null ? album.getId().toString() : "");
-                    case "Nom" -> albumMap.put("Nom", album.getNom());
-                    case "Taille" -> albumMap.put("Taille", album.getTaille());
-                    case "Status" -> albumMap.put("Status", album.getStatus() != null ? album.getStatus() : "");
-                    case "Artiste IDs" -> {
+                    case "NOM" -> albumMap.put("NOM", album.getNom());
+                    case "TAILLE" -> albumMap.put("TAILLE", album.getTaille());
+                    case "STATUS" -> albumMap.put("STATUS", album.getStatus() != null ? album.getStatus() : "");
+                    case "ARTISTE_IDS" -> {
                         String artistesIds = String.join(",", album.getArtistesIds().stream().map(String::valueOf).toList());
-                        albumMap.put("Artiste IDs", artistesIds);
+                        albumMap.put("ARTISTE_IDS", artistesIds);
                     }
-                    case "Titre IDs" -> {
+                    case "TITRE_IDS" -> {
                         String titresIds = String.join(",", album.getTitresIds().stream().map(String::valueOf).toList());
-                        albumMap.put("Titre IDs", titresIds);
+                        albumMap.put("TITRE_IDS", titresIds);
                     }
                 }
             });

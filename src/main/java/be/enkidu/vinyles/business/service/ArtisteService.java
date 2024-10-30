@@ -21,18 +21,18 @@ public class ArtisteService {
             Map<String, String> artisteMap = new LinkedHashMap<>();
 
             // Remplit le map en suivant l'ordre des colonnes défini dans ARTISTE_COLUMNS
-            ARTISTE_COLUMNS.forEach((columnName, index) -> {
-                switch (columnName) {
+            ARTISTE_COLUMNS.forEach((code, label) -> {
+                switch (code) {
                     case "ID" -> artisteMap.put("ID", artiste.getId() != null ? artiste.getId().toString() : "");
-                    case "Nom" -> artisteMap.put("Nom", artiste.getNom() != null ? artiste.getNom() : "");
-                    case "Prenom" -> artisteMap.put("Prenom", artiste.getPrenom() != null ? artiste.getPrenom() : "");
-                    case "Date Naissance" -> {
+                    case "NOM" -> artisteMap.put("NOM", artiste.getNom() != null ? artiste.getNom() : "");
+                    case "PRENOM" -> artisteMap.put("PRENOM", artiste.getPrenom() != null ? artiste.getPrenom() : "");
+                    case "DATE_NAISSANCE" -> {
                         String dateNaissance = artiste.getDateNaissance() != null ? dateFormat.format(artiste.getDateNaissance()) : "";
-                        artisteMap.put("Date Naissance", dateNaissance);
+                        artisteMap.put("DATE_NAISSANCE", dateNaissance);
                     }
-                    case "Date Décès" -> {
+                    case "DATE_DECES" -> {
                         String dateDeces = artiste.getDateDeces() != null ? dateFormat.format(artiste.getDateDeces()) : "";
-                        artisteMap.put("Date Décès", dateDeces);
+                        artisteMap.put("DATE_DECES", dateDeces);
                     }
                 }
             });
