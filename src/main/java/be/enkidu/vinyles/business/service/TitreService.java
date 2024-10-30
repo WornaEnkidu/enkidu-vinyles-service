@@ -1,10 +1,9 @@
 package be.enkidu.vinyles.business.service;
 
+import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.TITRE_COLUMNS;
+
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,14 +14,26 @@ public class TitreService {
         List<Map<String, String>> titresMap = new ArrayList<>();
 
         for (TitreDTO titre : titresDTO) {
-            Map<String, String> titreMap = new HashMap<>();
-            titreMap.put("ID", titre.getId() != null ? titre.getId().toString() : "");
-            titreMap.put("Nom", titre.getNom());
-            titreMap.put("Durée", titre.getDuree() != null ? String.format("%02d:%02d", titre.getDuree() / 60, titre.getDuree() % 60) : "");
+            // Utilise LinkedHashMap pour préserver l'ordre
+            Map<String, String> titreMap = new LinkedHashMap<>();
 
-            // Concatène les IDs des artistes
-            String artistesIds = String.join(",", titre.getArtistesIds().stream().map(String::valueOf).toList());
-            titreMap.put("Artiste IDs", artistesIds);
+            // Remplit le map en suivant l'ordre des colonnes défini dans TITRE_COLUMNS
+            TITRE_COLUMNS.forEach((columnName, index) -> {
+                switch (columnName) {
+                    case "ID" -> titreMap.put("ID", titre.getId() != null ? titre.getId().toString() : "");
+                    case "Nom" -> titreMap.put("Nom", titre.getNom());
+                    case "Durée" -> {
+                        String duree = titre.getDuree() != null
+                            ? String.format("%02d:%02d", titre.getDuree() / 60, titre.getDuree() % 60)
+                            : "";
+                        titreMap.put("Durée", duree);
+                    }
+                    case "Artistes IDs" -> {
+                        String artistesIds = String.join(",", titre.getArtistesIds().stream().map(String::valueOf).toList());
+                        titreMap.put("Artistes IDs", artistesIds);
+                    }
+                }
+            });
 
             titresMap.add(titreMap);
         }

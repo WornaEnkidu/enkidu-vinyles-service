@@ -1,5 +1,7 @@
 package be.enkidu.vinyles.business.service;
 
+import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ARTISTE_COLUMNS;
+
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,12 +17,25 @@ public class ArtisteService {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         for (ArtisteDTO artiste : artistesDTO) {
-            Map<String, String> artisteMap = new HashMap<>();
-            artisteMap.put("ID", artiste.getId() != null ? artiste.getId().toString() : "");
-            artisteMap.put("Nom", artiste.getNom() != null ? artiste.getNom() : "");
-            artisteMap.put("Prénom", artiste.getPrenom() != null ? artiste.getPrenom() : "");
-            artisteMap.put("Date de Naissance", artiste.getDateNaissance() != null ? dateFormat.format(artiste.getDateNaissance()) : "");
-            artisteMap.put("Date de Décès", artiste.getDateDeces() != null ? dateFormat.format(artiste.getDateDeces()) : "");
+            // Utilise LinkedHashMap pour préserver l'ordre
+            Map<String, String> artisteMap = new LinkedHashMap<>();
+
+            // Remplit le map en suivant l'ordre des colonnes défini dans ARTISTE_COLUMNS
+            ARTISTE_COLUMNS.forEach((columnName, index) -> {
+                switch (columnName) {
+                    case "ID" -> artisteMap.put("ID", artiste.getId() != null ? artiste.getId().toString() : "");
+                    case "Nom" -> artisteMap.put("Nom", artiste.getNom() != null ? artiste.getNom() : "");
+                    case "Prenom" -> artisteMap.put("Prenom", artiste.getPrenom() != null ? artiste.getPrenom() : "");
+                    case "Date Naissance" -> {
+                        String dateNaissance = artiste.getDateNaissance() != null ? dateFormat.format(artiste.getDateNaissance()) : "";
+                        artisteMap.put("Date Naissance", dateNaissance);
+                    }
+                    case "Date Décès" -> {
+                        String dateDeces = artiste.getDateDeces() != null ? dateFormat.format(artiste.getDateDeces()) : "";
+                        artisteMap.put("Date Décès", dateDeces);
+                    }
+                }
+            });
 
             artistesMap.add(artisteMap);
         }
