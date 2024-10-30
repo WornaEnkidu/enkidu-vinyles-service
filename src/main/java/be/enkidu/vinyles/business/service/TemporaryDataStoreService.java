@@ -10,8 +10,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -73,6 +78,57 @@ public class TemporaryDataStoreService {
         } catch (IOException e) {
             throw e;
         }
+    }
+
+    public List<ArtisteDTO> getArtistes() throws IOException {
+        List<ArtisteDTO> artistes = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        try (FileInputStream fis = new FileInputStream(FILE_PATH); Workbook workbook = new XSSFWorkbook(fis)) {
+            Sheet sheet = workbook.getSheet("Artistes");
+            if (sheet == null) {
+                return artistes; // Retourne une liste vide si la feuille n'existe pas
+            }
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) { // Commence à 1 pour ignorer l'en-tête
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    ArtisteDTO artiste = new ArtisteDTO();
+                    artiste.setId((long) row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).getNumericCellValue());
+                    artiste.setNom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).getStringCellValue());
+                    artiste.setPrenom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).getStringCellValue());
+
+                    try {
+                        // Gère Date Naissance en tant que Date
+                        if (row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_NAISSANCE")) != null) {
+                            String dateNaissanceStr = row
+                                .getCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_NAISSANCE"))
+                                .getStringCellValue()
+                                .trim();
+                            if (!dateNaissanceStr.isEmpty()) {
+                                Date dateNaissance = dateFormat.parse(dateNaissanceStr);
+                                artiste.setDateNaissance(dateNaissance);
+                            }
+                        }
+
+                        // Gère Date Décès en tant que Date
+                        if (row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_DECES")) != null) {
+                            String dateDecesStr = row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_DECES")).getStringCellValue().trim();
+                            if (!dateDecesStr.isEmpty()) {
+                                Date dateDeces = dateFormat.parse(dateDecesStr);
+                                artiste.setDateDeces(dateDeces);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    artistes.add(artiste);
+                }
+            }
+        }
+
+        return artistes;
     }
 
     private long generateNewId(Sheet sheet, Map<String, String> columns) {

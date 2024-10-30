@@ -21,8 +21,8 @@ public class ArtisteService {
         return this.temporaryDataStoreService.saveArtiste(artisteDTO);
     }
 
-    public List<Map<String, String>> exportArtistes() {
-        List<ArtisteDTO> artistesDTO = getArtistesDTO(); // Récupère la liste des DTO
+    public List<Map<String, String>> exportArtistes() throws IOException {
+        List<ArtisteDTO> artistesDTO = this.temporaryDataStoreService.getArtistes(); // Récupère la liste des DTO
         List<Map<String, String>> artistesMap = new ArrayList<>();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -54,25 +54,7 @@ public class ArtisteService {
         return artistesMap;
     }
 
-    private List<ArtisteDTO> getArtistesDTO() {
-        // Création de la liste d'ArtisteDTO (similaire à l'exemple précédent)
-        List<ArtisteDTO> artistes = new ArrayList<>();
-
-        ArtisteDTO artiste1 = new ArtisteDTO();
-        artiste1.setId(1L);
-        artiste1.setNom("Doe");
-        artiste1.setPrenom("John");
-        artiste1.setDateNaissance(new Date(1980 - 1900, 0, 1));
-
-        ArtisteDTO artiste2 = new ArtisteDTO();
-        artiste2.setId(2L);
-        artiste2.setNom("Smith");
-        artiste2.setPrenom("Jane");
-        artiste2.setDateNaissance(new Date(1985 - 1900, 4, 15));
-
-        artistes.add(artiste1);
-        artistes.add(artiste2);
-
-        return artistes;
+    public List<ArtisteDTO> getArtistes() throws IOException {
+        return this.temporaryDataStoreService.getArtistes();
     }
 }
