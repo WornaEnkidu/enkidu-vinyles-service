@@ -37,6 +37,7 @@ public class ArtisteService {
                     case "ID" -> artisteMap.put("ID", artiste.getId() != null ? artiste.getId().toString() : "");
                     case "NOM" -> artisteMap.put("NOM", artiste.getNom() != null ? artiste.getNom() : "");
                     case "PRENOM" -> artisteMap.put("PRENOM", artiste.getPrenom() != null ? artiste.getPrenom() : "");
+                    case "IMAGE" -> artisteMap.put("IMAGE", artiste.getImage() != null ? artiste.getImage() : "");
                     case "DATE_NAISSANCE" -> {
                         String dateNaissance = artiste.getDateNaissance() != null ? dateFormat.format(artiste.getDateNaissance()) : "";
                         artisteMap.put("DATE_NAISSANCE", dateNaissance);

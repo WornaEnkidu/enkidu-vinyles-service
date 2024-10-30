@@ -97,6 +97,7 @@ public class TemporaryDataStoreService {
                     artiste.setId((long) row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).getNumericCellValue());
                     artiste.setNom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).getStringCellValue());
                     artiste.setPrenom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).getStringCellValue());
+                    artiste.setImage(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).getStringCellValue());
 
                     try {
                         // Gère Date Naissance en tant que Date
@@ -160,6 +161,7 @@ public class TemporaryDataStoreService {
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).setCellValue(artiste.getId());
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).setCellValue(artiste.getNom());
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).setCellValue(artiste.getPrenom());
+        row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).setCellValue(artiste.getImage());
         row
             .createCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_NAISSANCE"))
             .setCellValue(artiste.getDateNaissance() != null ? artiste.getDateNaissance().toString() : "");
@@ -179,6 +181,7 @@ public class TemporaryDataStoreService {
             row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).setCellValue(artiste.getId());
             row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).setCellValue(artiste.getNom());
             row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).setCellValue(artiste.getPrenom());
+            row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).setCellValue(artiste.getImage());
             row
                 .createCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_NAISSANCE"))
                 .setCellValue(artiste.getDateNaissance() != null ? artiste.getDateNaissance().toString() : "");

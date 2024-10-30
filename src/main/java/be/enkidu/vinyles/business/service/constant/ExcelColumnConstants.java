@@ -15,6 +15,7 @@ public class ExcelColumnConstants {
         ARTISTE_COLUMNS.put("PRENOM", "Prenom");
         ARTISTE_COLUMNS.put("DATE_NAISSANCE", "Date Naissance");
         ARTISTE_COLUMNS.put("DATE_DECES", "Date Décès");
+        ARTISTE_COLUMNS.put("IMAGE", "Image");
     }
 
     // Constante pour les colonnes de la feuille Titres
