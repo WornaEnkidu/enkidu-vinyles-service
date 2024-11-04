@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,9 @@ public class ExcelService {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             workbook.write(out);
             return out.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -126,7 +130,9 @@ public class ExcelService {
             String[] artistesIdsStr = row.getCell(getPositionOfKey(TITRE_COLUMNS, "ARTISTE_IDS")).getStringCellValue().split(",");
             List<Long> artistesIds = new ArrayList<>();
             for (String idStr : artistesIdsStr) {
-                artistesIds.add(Long.parseLong(idStr.trim()));
+                if (StringUtils.isNotBlank(idStr)) {
+                    artistesIds.add(Long.parseLong(idStr.trim()));
+                }
             }
             titre.setArtistesIds(artistesIds);
 
@@ -148,7 +154,9 @@ public class ExcelService {
             String[] artistesIdsStr = row.getCell(getPositionOfKey(ALBUM_COLUMNS, "ARTISTE_IDS")).getStringCellValue().split(",");
             List<Long> artistesIds = new ArrayList<>();
             for (String idStr : artistesIdsStr) {
-                artistesIds.add(Long.parseLong(idStr.trim()));
+                if (StringUtils.isNotBlank(idStr)) {
+                    artistesIds.add(Long.parseLong(idStr.trim()));
+                }
             }
             album.setArtistesIds(artistesIds);
 
@@ -156,12 +164,15 @@ public class ExcelService {
             String[] titresIdsStr = row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TITRE_IDS")).getStringCellValue().split(",");
             List<Long> titresIds = new ArrayList<>();
             for (String idStr : titresIdsStr) {
-                titresIds.add(Long.parseLong(idStr.trim()));
+                if (StringUtils.isNotBlank(idStr)) {
+                    titresIds.add(Long.parseLong(idStr.trim()));
+                }
             }
             album.setTitresIds(titresIds);
 
             album.setTaille(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TAILLE")).getStringCellValue());
             album.setStatus(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "STATUS")).getStringCellValue());
+            album.setImage(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "IMAGE")).getStringCellValue());
 
             albums.add(album);
         }

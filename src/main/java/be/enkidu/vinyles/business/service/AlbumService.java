@@ -3,6 +3,7 @@ package be.enkidu.vinyles.business.service;
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ALBUM_COLUMNS;
 
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
+import java.io.IOException;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class AlbumService {
 
-    public List<Map<String, String>> exportAlbums() {
-        List<AlbumDTO> albumsDTO = getAlbumsDTO(); // Récupère la liste des DTO
+    private TemporaryDataStoreService temporaryDataStoreService;
+
+    public AlbumService(TemporaryDataStoreService temporaryDataStoreService) {
+        this.temporaryDataStoreService = temporaryDataStoreService;
+    }
+
+    public List<Map<String, String>> exportAlbums() throws IOException {
+        List<AlbumDTO> albumsDTO = this.temporaryDataStoreService.getAlbums();
         List<Map<String, String>> albumsMap = new ArrayList<>();
 
         for (AlbumDTO album : albumsDTO) {
@@ -33,6 +40,7 @@ public class AlbumService {
                         String titresIds = String.join(",", album.getTitresIds().stream().map(String::valueOf).toList());
                         albumMap.put("TITRE_IDS", titresIds);
                     }
+                    case "IMAGE" -> albumMap.put("IMAGE", album.getImage() != null ? album.getImage() : "");
                 }
             });
 
@@ -42,29 +50,11 @@ public class AlbumService {
         return albumsMap;
     }
 
-    private List<AlbumDTO> getAlbumsDTO() {
-        // Création d'exemples de AlbumDTO pour tester
-        List<AlbumDTO> albums = new ArrayList<>();
+    public List<AlbumDTO> getAlbums() throws IOException {
+        return this.temporaryDataStoreService.getAlbums();
+    }
 
-        AlbumDTO album1 = new AlbumDTO();
-        album1.setId(1L);
-        album1.setNom("Album 1");
-        album1.setTaille("33t");
-        album1.setStatus("Disponible");
-        album1.setArtistesIds(List.of(1L, 2L)); // IDs des artistes
-        album1.setTitresIds(List.of(1L, 2L)); // IDs des titres
-
-        AlbumDTO album2 = new AlbumDTO();
-        album2.setId(2L);
-        album2.setNom("Album 2");
-        album2.setTaille("45t");
-        album2.setStatus("Indisponible");
-        album2.setArtistesIds(List.of(2L)); // IDs des artistes
-        album2.setTitresIds(List.of(3L)); // IDs des titres
-
-        albums.add(album1);
-        albums.add(album2);
-
-        return albums;
+    public AlbumDTO saveAlbum(AlbumDTO albumDTO) throws IOException {
+        return this.temporaryDataStoreService.saveAlbum(albumDTO);
     }
 }
