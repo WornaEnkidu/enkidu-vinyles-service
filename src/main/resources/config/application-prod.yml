@@ -17,7 +17,9 @@ logging:
   level:
     ROOT: INFO
     tech.jhipster: INFO
-    be.enkidu.vinyles: INFO
+    be.enkidu.vinyles: DEBUG
+    org.springframework.web.cors: DEBUG
+    org.springframework.web.filter.CorsFilter: DEBUG
 
 management:
   prometheus:
