@@ -2,7 +2,9 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ALBUM_COLUMNS;
 
+import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
+import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import java.io.IOException;
 import java.util.*;
 import java.util.ArrayList;
@@ -56,5 +58,15 @@ public class AlbumService {
 
     public AlbumDTO saveAlbum(AlbumDTO albumDTO) throws IOException {
         return this.temporaryDataStoreService.saveAlbum(albumDTO);
+    }
+
+    public AlbumDTO getAlbum(Long id) throws IOException, RessourceNotFoundException {
+        List<AlbumDTO> albums = this.temporaryDataStoreService.getAlbums();
+
+        return albums
+            .stream()
+            .filter(a -> a.getId() != null && a.getId().equals(id))
+            .findFirst()
+            .orElseThrow(() -> new RessourceNotFoundException("Album not found"));
     }
 }

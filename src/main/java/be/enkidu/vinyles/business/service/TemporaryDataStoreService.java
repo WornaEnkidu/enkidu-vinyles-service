@@ -337,22 +337,26 @@ public class TemporaryDataStoreService {
     }
 
     private void updateArtisteRow(Row row, ArtisteDTO artiste) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).setCellValue(artiste.getId());
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).setCellValue(artiste.getNom());
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).setCellValue(artiste.getPrenom());
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).setCellValue(artiste.getImage());
         row
             .createCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_NAISSANCE"))
-            .setCellValue(artiste.getDateNaissance() != null ? artiste.getDateNaissance().toString() : "");
+            .setCellValue(artiste.getDateNaissance() != null ? dateFormat.format(artiste.getDateNaissance()) : "");
         row
             .createCell(getPositionOfKey(ARTISTE_COLUMNS, "DATE_DECES"))
-            .setCellValue(artiste.getDateDeces() != null ? artiste.getDateDeces().toString() : "");
+            .setCellValue(artiste.getDateDeces() != null ? dateFormat.format(artiste.getDateDeces()) : "");
     }
 
     private void updateTitreRow(Row row, TitreDTO titre) {
         row.createCell(getPositionOfKey(TITRE_COLUMNS, "ID")).setCellValue(titre.getId());
         row.createCell(getPositionOfKey(TITRE_COLUMNS, "NOM")).setCellValue(titre.getNom());
-        row.createCell(getPositionOfKey(TITRE_COLUMNS, "DUREE")).setCellValue(titre.getDuree());
+
+        Integer duree = titre.getDuree();
+        row.createCell(getPositionOfKey(TITRE_COLUMNS, "DUREE")).setCellValue(duree != null ? duree : 0);
 
         // Concatène les IDs des artistes en chaîne de caractères
         String artistesIds = "";

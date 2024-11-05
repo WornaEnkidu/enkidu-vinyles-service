@@ -1,7 +1,9 @@
 package be.enkidu.vinyles.business.web.rest;
 
+import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.service.AlbumService;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
+import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -44,6 +46,24 @@ public class AlbumResource {
         try {
             AlbumDTO savedAlbum = albumService.saveAlbum(albumDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedAlbum);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Endpoint pour récupérer un album par ID.
+     *
+     * @param id L'ID de l'album à récupérer.
+     * @return L'AlbumDTO correspondant ou une réponse 404 si non trouvé.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<AlbumDTO> getAlbum(@PathVariable Long id) {
+        try {
+            AlbumDTO album = albumService.getAlbum(id);
+            return ResponseEntity.ok(album);
+        } catch (RessourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

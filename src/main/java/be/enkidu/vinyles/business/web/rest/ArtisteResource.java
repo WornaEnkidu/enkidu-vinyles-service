@@ -1,5 +1,6 @@
 package be.enkidu.vinyles.business.web.rest;
 
+import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.service.ArtisteService;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import java.io.IOException;
@@ -46,6 +47,24 @@ public class ArtisteResource {
         try {
             List<ArtisteDTO> artistes = artisteService.getArtistes();
             return ResponseEntity.ok(artistes);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Endpoint pour récupérer un artiste par ID.
+     *
+     * @param id L'ID de l'artiste à récupérer.
+     * @return L'ArtisteDTO correspondant ou une réponse 404 si non trouvé.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ArtisteDTO> getArtiste(@PathVariable Long id) {
+        try {
+            ArtisteDTO artiste = artisteService.getArtiste(id);
+            return ResponseEntity.ok(artiste);
+        } catch (RessourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

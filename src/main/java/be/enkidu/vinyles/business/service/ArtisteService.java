@@ -2,6 +2,7 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ARTISTE_COLUMNS;
 
+import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -57,5 +58,15 @@ public class ArtisteService {
 
     public List<ArtisteDTO> getArtistes() throws IOException {
         return this.temporaryDataStoreService.getArtistes();
+    }
+
+    public ArtisteDTO getArtiste(Long id) throws IOException, RessourceNotFoundException {
+        List<ArtisteDTO> artistes = this.temporaryDataStoreService.getArtistes();
+
+        return artistes
+            .stream()
+            .filter(a -> a.getId() != null && a.getId().equals(id))
+            .findFirst()
+            .orElseThrow(() -> new RessourceNotFoundException("Artiste not found"));
     }
 }

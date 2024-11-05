@@ -2,6 +2,8 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.TITRE_COLUMNS;
 
+import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
+import be.enkidu.vinyles.business.service.dto.AlbumDTO;
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
 import java.io.IOException;
 import java.util.*;
@@ -54,5 +56,15 @@ public class TitreService {
 
     public TitreDTO saveTitre(TitreDTO titreDTO) throws IOException {
         return this.temporaryDataStoreService.saveTitre(titreDTO);
+    }
+
+    public TitreDTO getTitre(Long id) throws IOException, RessourceNotFoundException {
+        List<TitreDTO> titres = this.temporaryDataStoreService.getTitres();
+
+        return titres
+            .stream()
+            .filter(a -> a.getId() != null && a.getId().equals(id))
+            .findFirst()
+            .orElseThrow(() -> new RessourceNotFoundException("Titre not found"));
     }
 }
