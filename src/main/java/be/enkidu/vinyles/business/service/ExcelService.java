@@ -77,7 +77,7 @@ public class ExcelService {
             Row row = sheet.getRow(i);
             ArtisteDTO artiste = new ArtisteDTO();
             artiste.setId(Long.parseLong(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).getStringCellValue()));
-            artiste.setNom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).getStringCellValue());
+            artiste.setNomArtiste(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).getStringCellValue());
             artiste.setPrenom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).getStringCellValue());
             artiste.setImage(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).getStringCellValue());
 

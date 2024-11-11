@@ -36,7 +36,7 @@ public class ArtisteService {
             ARTISTE_COLUMNS.forEach((code, label) -> {
                 switch (code) {
                     case "ID" -> artisteMap.put("ID", artiste.getId() != null ? artiste.getId().toString() : "");
-                    case "NOM" -> artisteMap.put("NOM", artiste.getNom() != null ? artiste.getNom() : "");
+                    case "NOM" -> artisteMap.put("NOM", artiste.getNomArtiste() != null ? artiste.getNomArtiste() : "");
                     case "PRENOM" -> artisteMap.put("PRENOM", artiste.getPrenom() != null ? artiste.getPrenom() : "");
                     case "IMAGE" -> artisteMap.put("IMAGE", artiste.getImage() != null ? artiste.getImage() : "");
                     case "DATE_NAISSANCE" -> {

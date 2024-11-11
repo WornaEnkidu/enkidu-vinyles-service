@@ -6,7 +6,7 @@ public class ArtisteDTO {
 
     private Long id;
     private String image;
-    private String nom;
+    private String nomArtiste;
     private String prenom;
     private Date dateNaissance;
     private Date dateDeces;
@@ -27,12 +27,12 @@ public class ArtisteDTO {
         this.image = image;
     }
 
-    public String getNom() {
-        return nom;
+    public String getNomArtiste() {
+        return nomArtiste;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setNomArtiste(String nomArtiste) {
+        this.nomArtiste = nomArtiste;
     }
 
     public String getPrenom() {

@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -130,7 +129,7 @@ public class TemporaryDataStoreService {
                 if (row != null) {
                     ArtisteDTO artiste = new ArtisteDTO();
                     artiste.setId((long) row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).getNumericCellValue());
-                    artiste.setNom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).getStringCellValue());
+                    artiste.setNomArtiste(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).getStringCellValue());
                     artiste.setPrenom(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).getStringCellValue());
                     artiste.setImage(row.getCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).getStringCellValue());
 
@@ -175,7 +174,11 @@ public class TemporaryDataStoreService {
             // Recherche le titre par ID et met à jour ses informations s'il existe
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row != null && ((long) row.getCell(getPositionOfKey(TITRE_COLUMNS, "ID")).getNumericCellValue()) == newTitre.getId()) {
+                if (
+                    row != null &&
+                    newTitre.getId() != null &&
+                    ((long) row.getCell(getPositionOfKey(TITRE_COLUMNS, "ID")).getNumericCellValue()) == newTitre.getId()
+                ) {
                     updateTitreRow(row, newTitre);
                     updated = true;
                     break;
@@ -241,7 +244,11 @@ public class TemporaryDataStoreService {
             // Recherche l'album par ID et met à jour ses informations s'il existe
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row != null && ((long) row.getCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).getNumericCellValue()) == newAlbum.getId()) {
+                if (
+                    row != null &&
+                    newAlbum.getId() != null &&
+                    ((long) row.getCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).getNumericCellValue()) == newAlbum.getId()
+                ) {
                     updateAlbumRow(row, newAlbum);
                     updated = true;
                     break;
@@ -340,7 +347,7 @@ public class TemporaryDataStoreService {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).setCellValue(artiste.getId());
-        row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).setCellValue(artiste.getNom());
+        row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).setCellValue(artiste.getNomArtiste());
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).setCellValue(artiste.getPrenom());
         row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).setCellValue(artiste.getImage());
         row
@@ -398,7 +405,7 @@ public class TemporaryDataStoreService {
         for (ArtisteDTO artiste : artistes) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "ID")).setCellValue(artiste.getId());
-            row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).setCellValue(artiste.getNom());
+            row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "NOM")).setCellValue(artiste.getNomArtiste());
             row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "PRENOM")).setCellValue(artiste.getPrenom());
             row.createCell(getPositionOfKey(ARTISTE_COLUMNS, "IMAGE")).setCellValue(artiste.getImage());
             row
