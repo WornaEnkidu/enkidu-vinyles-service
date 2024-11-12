@@ -3,6 +3,8 @@ package be.enkidu.vinyles.business.service;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -15,10 +17,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
-import com.itextpdf.layout.element.AreaBreak;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
@@ -76,24 +75,68 @@ public class EnhancedAlbumPdfGenerator {
         // Détails pour chaque album
         for (AlbumDTO album : albums) {
             document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
-            document.add(
-                new Paragraph(album.getNom()).setFontSize(20).setBold().setTextAlignment(TextAlignment.CENTER).setFontColor(headerColor)
-            );
 
+            // Charger et ajouter l'image de l'album
+            if (album.getImage() != null && !album.getImage().isEmpty()) {
+                try {
+                    ImageData imageData = ImageDataFactory.create(album.getImage());
+                    Image albumImage = new Image(imageData);
+                    albumImage.setWidth(UnitValue.createPercentValue(40)); // Ajuster la taille
+                    albumImage.setAutoScale(true); // Adapter l'image à la page
+                    albumImage.setMarginBottom(10); // Ajouter de l'espace sous l'image
+                    document.add(albumImage);
+                } catch (Exception e) {
+                    System.err.println("Erreur lors du chargement de l'image: " + e.getMessage());
+                }
+            }
+
+            // Ajouter le titre de l'album
+            document.add(
+                new Paragraph(album.getNom())
+                    .setFontSize(24)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontColor(new DeviceRgb(63, 81, 181))
+                    .setMarginBottom(10)
+            ); // Espace sous le titre
+
+            // Ajouter les artistes
             String artistes = album.getArtistes() != null
                 ? album.getArtistes().stream().map(ArtisteDTO::getNomArtiste).collect(Collectors.joining(", "))
-                : "";
-            document.add(new Paragraph("Artistes: " + artistes).setFontSize(12).setTextAlignment(TextAlignment.CENTER));
+                : "Artiste inconnu";
+            document.add(
+                new Paragraph("Artistes : " + artistes).setFontSize(14).setTextAlignment(TextAlignment.CENTER).setMarginBottom(20)
+            );
+
+            // Ajouter les informations de l'album dans un tableau d'information
+            Table infoTable = new Table(2);
+            infoTable.setWidth(UnitValue.createPercentValue(100));
+            infoTable.addCell(createInfoCell("Status :", true));
+            infoTable.addCell(createInfoCell(album.getStatus(), false));
+            infoTable.addCell(createInfoCell("Format :", true));
+            infoTable.addCell(createInfoCell(album.getTaille(), false));
+            //            infoTable.addCell(createInfoCell("Date de sortie :", true));
+            //            infoTable.addCell(createInfoCell("", false));
+            infoTable.setMarginBottom(20); // Espace après le tableau
+
+            document.add(infoTable);
 
             // Tableau pour les titres
+            Paragraph trackHeader = new Paragraph("Titres de l'album")
+                .setFontSize(16)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginBottom(10);
+            document.add(trackHeader);
+
             Table trackTable = new Table(new float[] { 1, 4, 2 })
                 .setWidth(UnitValue.createPercentValue(100))
-                .setMarginTop(10)
-                .setBackgroundColor(new DeviceRgb(230, 230, 250)); // Couleur plus claire pour la section
+                .setBackgroundColor(new DeviceRgb(240, 240, 240))
+                .setMarginBottom(20);
 
-            trackTable.addHeaderCell(createStyledCell("N°", headerColor, true));
-            trackTable.addHeaderCell(createStyledCell("Titre", headerColor, true));
-            trackTable.addHeaderCell(createStyledCell("Durée", headerColor, true));
+            trackTable.addHeaderCell(createStyledCell("N°", new DeviceRgb(63, 81, 181), true));
+            trackTable.addHeaderCell(createStyledCell("Titre", new DeviceRgb(63, 81, 181), true));
+            trackTable.addHeaderCell(createStyledCell("Durée", new DeviceRgb(63, 81, 181), true));
 
             int trackIndex = 1;
             for (TitreDTO titreDTO : album.getTitres()) {
@@ -101,6 +144,7 @@ public class EnhancedAlbumPdfGenerator {
                 trackTable.addCell(createStyledCell(titreDTO.getNom(), ColorConstants.WHITE, false));
                 trackTable.addCell(createStyledCell(String.valueOf(titreDTO.getDuree()), ColorConstants.WHITE, false));
             }
+
             document.add(trackTable);
         }
 
@@ -117,6 +161,18 @@ public class EnhancedAlbumPdfGenerator {
             cell.setFontColor(ColorConstants.BLACK);
         }
         cell.setTextAlignment(TextAlignment.CENTER);
+        return cell;
+    }
+
+    private Cell createInfoCell(String content, boolean isLabel) {
+        Cell cell = new Cell().add(new Paragraph(content));
+        cell.setBorder(Border.NO_BORDER);
+        cell.setTextAlignment(TextAlignment.LEFT);
+        if (isLabel) {
+            cell.setFontColor(new DeviceRgb(63, 81, 181)).setBold();
+        } else {
+            cell.setFontColor(ColorConstants.BLACK);
+        }
         return cell;
     }
 
