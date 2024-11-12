@@ -15,9 +15,11 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import java.io.ByteArrayOutputStream;
@@ -73,7 +75,7 @@ public class EnhancedAlbumPdfGenerator {
 
         // Détails pour chaque album
         for (AlbumDTO album : albums) {
-            pdf.addNewPage();
+            document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
             document.add(
                 new Paragraph(album.getNom()).setFontSize(20).setBold().setTextAlignment(TextAlignment.CENTER).setFontColor(headerColor)
             );
