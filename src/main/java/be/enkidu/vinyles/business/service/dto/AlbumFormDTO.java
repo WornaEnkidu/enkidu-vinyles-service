@@ -2,13 +2,13 @@ package be.enkidu.vinyles.business.service.dto;
 
 import java.util.List;
 
-public class AlbumDTO {
+public class AlbumFormDTO {
 
     private Long id;
     private String image;
     private String nom;
-    private List<ArtisteDTO> artistes;
-    private List<TitreDTO> titres;
+    private List<Long> artistesIds;
+    private List<Long> titresIds;
     private String taille;
     private String status;
 
@@ -36,20 +36,20 @@ public class AlbumDTO {
         this.nom = nom;
     }
 
-    public List<ArtisteDTO> getArtistes() {
-        return artistes;
+    public List<Long> getArtistesIds() {
+        return artistesIds;
     }
 
-    public void setArtistes(List<ArtisteDTO> artistes) {
-        this.artistes = artistes;
+    public void setArtistesIds(List<Long> artistesIds) {
+        this.artistesIds = artistesIds;
     }
 
-    public List<TitreDTO> getTitres() {
-        return titres;
+    public List<Long> getTitresIds() {
+        return titresIds;
     }
 
-    public void setTitres(List<TitreDTO> titres) {
-        this.titres = titres;
+    public void setTitresIds(List<Long> titresIds) {
+        this.titresIds = titresIds;
     }
 
     public String getTaille() {

@@ -4,11 +4,11 @@ import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.A
 
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
-import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
+import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -17,16 +17,27 @@ import org.springframework.stereotype.Service;
 public class AlbumService {
 
     private TemporaryDataStoreService temporaryDataStoreService;
+    private final ArtisteService artisteService;
+    private final TitreService titreService;
+    private final EnhancedAlbumPdfGenerator pdfGenerator;
 
-    public AlbumService(TemporaryDataStoreService temporaryDataStoreService) {
+    public AlbumService(
+        TemporaryDataStoreService temporaryDataStoreService,
+        ArtisteService artisteService,
+        TitreService titreService,
+        EnhancedAlbumPdfGenerator pdfGenerator
+    ) {
         this.temporaryDataStoreService = temporaryDataStoreService;
+        this.artisteService = artisteService;
+        this.titreService = titreService;
+        this.pdfGenerator = pdfGenerator;
     }
 
     public List<Map<String, String>> exportAlbums() throws IOException {
-        List<AlbumDTO> albumsDTO = this.temporaryDataStoreService.getAlbums();
+        List<AlbumFormDTO> albumsDTO = this.temporaryDataStoreService.getAlbums();
         List<Map<String, String>> albumsMap = new ArrayList<>();
 
-        for (AlbumDTO album : albumsDTO) {
+        for (AlbumFormDTO album : albumsDTO) {
             Map<String, String> albumMap = new LinkedHashMap<>();
             ALBUM_COLUMNS.forEach((columnName, index) -> {
                 switch (columnName) {
@@ -52,21 +63,59 @@ public class AlbumService {
         return albumsMap;
     }
 
-    public List<AlbumDTO> getAlbums() throws IOException {
+    public List<AlbumFormDTO> getAlbumDTOs() throws IOException {
         return this.temporaryDataStoreService.getAlbums();
     }
 
-    public AlbumDTO saveAlbum(AlbumDTO albumDTO) throws IOException {
-        return this.temporaryDataStoreService.saveAlbum(albumDTO);
+    public List<AlbumDTO> getAlbums() throws IOException {
+        List<AlbumFormDTO> formDTOS = this.temporaryDataStoreService.getAlbums();
+        List<AlbumDTO> albums = new ArrayList<>();
+        for (AlbumFormDTO albumForm : formDTOS) {
+            AlbumDTO albumDTO = new AlbumDTO();
+            albumDTO.setId(albumForm.getId());
+            albumDTO.setNom(albumForm.getNom());
+            albumDTO.setImage(albumForm.getImage());
+            albumDTO.setStatus(albumForm.getStatus());
+            albumDTO.setTaille(albumForm.getTaille());
+            albumDTO.setArtistes(new ArrayList<>());
+            albumDTO.setTitres(new ArrayList<>());
+
+            if (albumForm.getArtistesIds() != null) {
+                for (long id : albumForm.getArtistesIds()) {
+                    albumDTO.getArtistes().add(this.artisteService.getArtiste(id));
+                }
+            }
+
+            if (albumForm.getTitresIds() != null) {
+                for (long id : albumForm.getTitresIds()) {
+                    albumDTO.getTitres().add(this.titreService.getTitre(id));
+                }
+            }
+            albums.add(albumDTO);
+        }
+        return albums;
     }
 
-    public AlbumDTO getAlbum(Long id) throws IOException, RessourceNotFoundException {
-        List<AlbumDTO> albums = this.temporaryDataStoreService.getAlbums();
+    public AlbumFormDTO saveAlbum(AlbumFormDTO albumFormDTO) throws IOException {
+        return this.temporaryDataStoreService.saveAlbum(albumFormDTO);
+    }
+
+    public AlbumFormDTO getAlbum(Long id) throws IOException, RessourceNotFoundException {
+        List<AlbumFormDTO> albums = this.temporaryDataStoreService.getAlbums();
 
         return albums
             .stream()
             .filter(a -> a.getId() != null && a.getId().equals(id))
             .findFirst()
             .orElseThrow(() -> new RessourceNotFoundException("Album not found"));
+    }
+
+    public byte[] generateAlbumsPdf() throws IOException {
+        List<AlbumDTO> albums = getAlbums();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        pdfGenerator.generateAlbumPdf(baos, albums);
+
+        return baos.toByteArray();
     }
 }

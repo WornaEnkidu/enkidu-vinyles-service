@@ -2,11 +2,12 @@ package be.enkidu.vinyles.business.web.rest;
 
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.service.AlbumService;
-import be.enkidu.vinyles.business.service.dto.AlbumDTO;
-import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
+import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
 import java.io.IOException;
 import java.util.List;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,9 +27,9 @@ public class AlbumResource {
      * @return La liste des albums en tant que DTO.
      */
     @GetMapping
-    public ResponseEntity<List<AlbumDTO>> getAlbums() {
+    public ResponseEntity<List<AlbumFormDTO>> getAlbums() {
         try {
-            List<AlbumDTO> albums = albumService.getAlbums();
+            List<AlbumFormDTO> albums = albumService.getAlbumDTOs();
             return ResponseEntity.ok(albums);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -38,13 +39,13 @@ public class AlbumResource {
     /**
      * Endpoint pour créer ou mettre à jour un album.
      *
-     * @param albumDTO Le DTO de l'album à sauvegarder.
+     * @param albumFormDTO Le DTO de l'album à sauvegarder.
      * @return Le DTO de l'album avec son ID mis à jour, si applicable.
      */
     @PostMapping
-    public ResponseEntity<AlbumDTO> saveAlbum(@RequestBody AlbumDTO albumDTO) {
+    public ResponseEntity<AlbumFormDTO> saveAlbum(@RequestBody AlbumFormDTO albumFormDTO) {
         try {
-            AlbumDTO savedAlbum = albumService.saveAlbum(albumDTO);
+            AlbumFormDTO savedAlbum = albumService.saveAlbum(albumFormDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedAlbum);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -58,13 +59,27 @@ public class AlbumResource {
      * @return L'AlbumDTO correspondant ou une réponse 404 si non trouvé.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<AlbumDTO> getAlbum(@PathVariable Long id) {
+    public ResponseEntity<AlbumFormDTO> getAlbum(@PathVariable Long id) {
         try {
-            AlbumDTO album = albumService.getAlbum(id);
+            AlbumFormDTO album = albumService.getAlbum(id);
             return ResponseEntity.ok(album);
         } catch (RessourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> generateAlbumsPdf() {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "albums_catalogue.pdf");
+
+            return new ResponseEntity<>(albumService.generateAlbumsPdf(), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

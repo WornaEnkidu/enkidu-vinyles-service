@@ -2,7 +2,7 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.*;
 
-import be.enkidu.vinyles.business.service.dto.AlbumDTO;
+import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
 import java.io.File;
@@ -60,7 +60,7 @@ public class TemporaryDataStoreService {
         }
     }
 
-    public void saveData(List<ArtisteDTO> artistes, List<TitreDTO> titres, List<AlbumDTO> albums) {
+    public void saveData(List<ArtisteDTO> artistes, List<TitreDTO> titres, List<AlbumFormDTO> albums) {
         Workbook workbook = new XSSFWorkbook();
 
         // Créer les feuilles pour Artistes, Titres et Albums
@@ -236,7 +236,7 @@ public class TemporaryDataStoreService {
         return titres;
     }
 
-    public AlbumDTO saveAlbum(AlbumDTO newAlbum) throws IOException {
+    public AlbumFormDTO saveAlbum(AlbumFormDTO newAlbum) throws IOException {
         try (FileInputStream fis = new FileInputStream(FILE_PATH); Workbook workbook = new XSSFWorkbook(fis)) {
             Sheet sheet = workbook.getSheet("Albums");
             boolean updated = false;
@@ -271,8 +271,8 @@ public class TemporaryDataStoreService {
         }
     }
 
-    public List<AlbumDTO> getAlbums() throws IOException {
-        List<AlbumDTO> albums = new ArrayList<>();
+    public List<AlbumFormDTO> getAlbums() throws IOException {
+        List<AlbumFormDTO> albums = new ArrayList<>();
 
         try (FileInputStream fis = new FileInputStream(FILE_PATH); Workbook workbook = new XSSFWorkbook(fis)) {
             Sheet sheet = workbook.getSheet("Albums");
@@ -283,7 +283,7 @@ public class TemporaryDataStoreService {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) { // Commence à 1 pour ignorer l'en-tête
                 Row row = sheet.getRow(i);
                 if (row != null) {
-                    AlbumDTO album = new AlbumDTO();
+                    AlbumFormDTO album = new AlbumFormDTO();
                     album.setId((long) row.getCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).getNumericCellValue());
                     album.setNom(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "NOM")).getStringCellValue());
 
@@ -373,7 +373,7 @@ public class TemporaryDataStoreService {
         row.createCell(getPositionOfKey(TITRE_COLUMNS, "ARTISTE_IDS")).setCellValue(artistesIds);
     }
 
-    private void updateAlbumRow(Row row, AlbumDTO album) {
+    private void updateAlbumRow(Row row, AlbumFormDTO album) {
         row.createCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).setCellValue(album.getId());
         row.createCell(getPositionOfKey(ALBUM_COLUMNS, "NOM")).setCellValue(album.getNom());
 
@@ -434,13 +434,13 @@ public class TemporaryDataStoreService {
         }
     }
 
-    private void createAlbumsSheet(Workbook workbook, List<AlbumDTO> albums) {
+    private void createAlbumsSheet(Workbook workbook, List<AlbumFormDTO> albums) {
         Sheet sheet = workbook.createSheet("Albums");
         Row header = sheet.createRow(0);
         ALBUM_COLUMNS.forEach((code, label) -> header.createCell(getPositionOfKey(ALBUM_COLUMNS, code)).setCellValue(label));
 
         int rowNum = 1;
-        for (AlbumDTO album : albums) {
+        for (AlbumFormDTO album : albums) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).setCellValue(album.getId());
             row.createCell(getPositionOfKey(ALBUM_COLUMNS, "NOM")).setCellValue(album.getNom());

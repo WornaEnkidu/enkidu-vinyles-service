@@ -2,7 +2,7 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.*;
 
-import be.enkidu.vinyles.business.service.dto.AlbumDTO;
+import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
 import java.io.ByteArrayOutputStream;
@@ -60,7 +60,7 @@ public class ExcelService {
 
             List<ArtisteDTO> artistes = readArtistesSheet(workbook.getSheet("Artistes"));
             List<TitreDTO> titres = readTitresSheet(workbook.getSheet("Titres"));
-            List<AlbumDTO> albums = readAlbumsSheet(workbook.getSheet("Albums"));
+            List<AlbumFormDTO> albums = readAlbumsSheet(workbook.getSheet("Albums"));
 
             workbook.close();
             this.temporaryDataStoreService.saveData(artistes, titres, albums);
@@ -141,12 +141,12 @@ public class ExcelService {
         return titres;
     }
 
-    private List<AlbumDTO> readAlbumsSheet(Sheet sheet) {
-        List<AlbumDTO> albums = new ArrayList<>();
+    private List<AlbumFormDTO> readAlbumsSheet(Sheet sheet) {
+        List<AlbumFormDTO> albums = new ArrayList<>();
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
-            AlbumDTO album = new AlbumDTO();
+            AlbumFormDTO album = new AlbumFormDTO();
             album.setId(Long.parseLong(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).getStringCellValue()));
             album.setNom(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "NOM")).getStringCellValue());
 
