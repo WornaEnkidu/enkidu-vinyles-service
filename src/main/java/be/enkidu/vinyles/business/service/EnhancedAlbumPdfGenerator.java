@@ -23,6 +23,8 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -76,20 +78,6 @@ public class EnhancedAlbumPdfGenerator {
         for (AlbumDTO album : albums) {
             document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 
-            // Charger et ajouter l'image de l'album
-            if (album.getImage() != null && !album.getImage().isEmpty()) {
-                try {
-                    ImageData imageData = ImageDataFactory.create(album.getImage());
-                    Image albumImage = new Image(imageData);
-                    albumImage.setWidth(UnitValue.createPercentValue(40)); // Ajuster la taille
-                    albumImage.setAutoScale(true); // Adapter l'image à la page
-                    albumImage.setMarginBottom(10); // Ajouter de l'espace sous l'image
-                    document.add(albumImage);
-                } catch (Exception e) {
-                    System.err.println("Erreur lors du chargement de l'image: " + e.getMessage());
-                }
-            }
-
             // Ajouter le titre de l'album
             document.add(
                 new Paragraph(album.getNom())
@@ -108,6 +96,30 @@ public class EnhancedAlbumPdfGenerator {
                 new Paragraph("Artistes : " + artistes).setFontSize(14).setTextAlignment(TextAlignment.CENTER).setMarginBottom(20)
             );
 
+            Table albumDetailTable = new Table(new float[] { 1, 3 }); // 2 colonnes, première colonne pour l'image et deuxième pour les infos
+            albumDetailTable.setWidth(UnitValue.createPercentValue(100));
+
+            // Charger et ajouter l'image de l'album
+            if (album.getImage() != null && !album.getImage().isEmpty()) {
+                try {
+                    ImageData imageData = ImageDataFactory.create(album.getImage());
+                    Image albumImage = new Image(imageData);
+                    albumImage.setMaxWidth(100); // Largeur fixe de 100 points
+                    albumImage.setHeight(100); // Hauteur fixe de 100 points
+                    albumImage.setAutoScale(false); // Désactiver l'auto-scale pour conserver les dimensions fixes
+
+                    // Ajouter l'image dans la première cellule de la table
+                    Cell imageCell = new Cell().add(albumImage);
+                    imageCell.setBorder(Border.NO_BORDER);
+                    albumDetailTable.addCell(imageCell);
+                } catch (Exception e) {
+                    System.err.println("Erreur lors du chargement de l'image: " + e.getMessage());
+                }
+            } else {
+                // Ajouter une cellule vide si l'image est manquante
+                albumDetailTable.addCell(new Cell().setBorder(Border.NO_BORDER));
+            }
+
             // Ajouter les informations de l'album dans un tableau d'information
             Table infoTable = new Table(2);
             infoTable.setWidth(UnitValue.createPercentValue(100));
@@ -119,7 +131,13 @@ public class EnhancedAlbumPdfGenerator {
             //            infoTable.addCell(createInfoCell("", false));
             infoTable.setMarginBottom(20); // Espace après le tableau
 
-            document.add(infoTable);
+            // Ajouter le tableau d'informations dans la deuxième cellule de la table principale
+            Cell infoCell = new Cell().add(infoTable);
+            infoCell.setBorder(Border.NO_BORDER);
+            albumDetailTable.addCell(infoCell);
+
+            // Ajouter la table principale avec image et infos au document
+            document.add(albumDetailTable);
 
             // Tableau pour les titres
             Paragraph trackHeader = new Paragraph("Titres de l'album")
@@ -179,6 +197,15 @@ public class EnhancedAlbumPdfGenerator {
     // Gestionnaire d'événements pour le header et footer
     private class HeaderFooterEventHandler implements IEventHandler {
 
+        private final String formattedDate;
+
+        public HeaderFooterEventHandler() {
+            // Récupérer la date actuelle et la formater
+            LocalDate date = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+            this.formattedDate = date.format(formatter);
+        }
+
         @Override
         public void handleEvent(Event event) {
             PdfDocumentEvent docEvent = (PdfDocumentEvent) event;
@@ -193,7 +220,7 @@ public class EnhancedAlbumPdfGenerator {
                     .beginText()
                     .setFontAndSize(PdfFontFactory.createFont(), 10)
                     .moveText(x - 60, headerY)
-                    .showText("Enkidu - Catalogue des Albums")
+                    .showText("Enkidu - Catalogue des Albums | Date d'export : " + formattedDate)
                     .endText();
             } catch (IOException e) {
                 e.printStackTrace();
