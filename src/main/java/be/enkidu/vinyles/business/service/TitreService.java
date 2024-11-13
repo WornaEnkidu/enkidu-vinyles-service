@@ -54,7 +54,7 @@ public class TitreService {
     }
 
     public TitreDTO saveTitre(TitreDTO titreDTO) throws IOException {
-        return this.temporaryDataStoreService.saveTitre(titreDTO);
+        return this.temporaryDataStoreService.saveTitre(titreDTO, null);
     }
 
     public TitreDTO getTitre(Long id) throws IOException, RessourceNotFoundException {

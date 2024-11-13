@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -50,7 +51,7 @@ public class AlbumService {
                         albumMap.put("ARTISTE_IDS", artistesIds);
                     }
                     case "TITRE_IDS" -> {
-                        String titresIds = String.join(",", album.getTitresIds().stream().map(String::valueOf).toList());
+                        String titresIds = String.join(",", album.getTitres().stream().map(String::valueOf).toList());
                         albumMap.put("TITRE_IDS", titresIds);
                     }
                     case "IMAGE" -> albumMap.put("IMAGE", album.getImage() != null ? album.getImage() : "");
@@ -78,17 +79,11 @@ public class AlbumService {
             albumDTO.setStatus(albumForm.getStatus());
             albumDTO.setTaille(albumForm.getTaille());
             albumDTO.setArtistes(new ArrayList<>());
-            albumDTO.setTitres(new ArrayList<>());
+            albumDTO.setTitres(albumForm.getTitres());
 
             if (albumForm.getArtistesIds() != null) {
                 for (long id : albumForm.getArtistesIds()) {
                     albumDTO.getArtistes().add(this.artisteService.getArtiste(id));
-                }
-            }
-
-            if (albumForm.getTitresIds() != null) {
-                for (long id : albumForm.getTitresIds()) {
-                    albumDTO.getTitres().add(this.titreService.getTitre(id));
                 }
             }
             albums.add(albumDTO);
@@ -97,6 +92,8 @@ public class AlbumService {
     }
 
     public AlbumFormDTO saveAlbum(AlbumFormDTO albumFormDTO) throws IOException {
+        AtomicInteger index = new AtomicInteger(1); // Initialise l'index à 1
+        albumFormDTO.getTitres().forEach(t -> t.setOrdre(index.getAndIncrement()));
         return this.temporaryDataStoreService.saveAlbum(albumFormDTO);
     }
 

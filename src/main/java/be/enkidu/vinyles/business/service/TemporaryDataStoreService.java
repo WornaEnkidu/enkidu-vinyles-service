@@ -12,10 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -166,39 +164,33 @@ public class TemporaryDataStoreService {
         return artistes;
     }
 
-    public TitreDTO saveTitre(TitreDTO newTitre) throws IOException {
-        try (FileInputStream fis = new FileInputStream(FILE_PATH); Workbook workbook = new XSSFWorkbook(fis)) {
-            Sheet sheet = workbook.getSheet("Titres");
-            boolean updated = false;
+    public TitreDTO saveTitre(TitreDTO newTitre, Workbook workbook) throws IOException {
+        Sheet sheet = workbook.getSheet("Titres");
+        boolean updated = false;
 
-            // Recherche le titre par ID et met à jour ses informations s'il existe
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (
-                    row != null &&
-                    newTitre.getId() != null &&
-                    ((long) row.getCell(getPositionOfKey(TITRE_COLUMNS, "ID")).getNumericCellValue()) == newTitre.getId()
-                ) {
-                    updateTitreRow(row, newTitre);
-                    updated = true;
-                    break;
-                }
+        // Recherche le titre par ID et met à jour ses informations s'il existe
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (
+                row != null &&
+                newTitre.getId() != null &&
+                ((long) row.getCell(getPositionOfKey(TITRE_COLUMNS, "ID")).getNumericCellValue()) == newTitre.getId()
+            ) {
+                updateTitreRow(row, newTitre);
+                updated = true;
+                break;
             }
-
-            // Si le titre n'existe pas, ajoute une nouvelle ligne
-            if (!updated) {
-                newTitre.setId(generateNewId(sheet, TITRE_COLUMNS));
-
-                Row newRow = sheet.createRow(sheet.getLastRowNum() + 1);
-                updateTitreRow(newRow, newTitre);
-            }
-
-            saveWorkbook(workbook);
-
-            return newTitre;
-        } catch (IOException e) {
-            throw e;
         }
+
+        // Si le titre n'existe pas, ajoute une nouvelle ligne
+        if (!updated) {
+            newTitre.setId(generateNewId(sheet, TITRE_COLUMNS));
+
+            Row newRow = sheet.createRow(sheet.getLastRowNum() + 1);
+            updateTitreRow(newRow, newTitre);
+        }
+
+        return newTitre;
     }
 
     public List<TitreDTO> getTitres() throws IOException {
@@ -249,7 +241,7 @@ public class TemporaryDataStoreService {
                     newAlbum.getId() != null &&
                     ((long) row.getCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).getNumericCellValue()) == newAlbum.getId()
                 ) {
-                    updateAlbumRow(row, newAlbum);
+                    updateAlbumRow(row, newAlbum, workbook);
                     updated = true;
                     break;
                 }
@@ -260,7 +252,7 @@ public class TemporaryDataStoreService {
                 newAlbum.setId(generateNewId(sheet, ALBUM_COLUMNS));
 
                 Row newRow = sheet.createRow(sheet.getLastRowNum() + 1);
-                updateAlbumRow(newRow, newAlbum);
+                updateAlbumRow(newRow, newAlbum, workbook);
             }
 
             saveWorkbook(workbook);
@@ -299,13 +291,12 @@ public class TemporaryDataStoreService {
 
                     // Convertit les IDs des titres en liste
                     String titresIdsStr = row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TITRE_IDS")).getStringCellValue();
-                    List<Long> titresIds = new ArrayList<>();
-                    for (String id : titresIdsStr.split(",")) {
-                        if (StringUtils.isNotBlank(id)) {
-                            titresIds.add(Long.parseLong(id.trim()));
-                        }
-                    }
-                    album.setTitresIds(titresIds);
+                    List<Long> titresIds = Arrays.stream(titresIdsStr.split(","))
+                        .filter(StringUtils::isNotBlank)
+                        .map(Long::parseLong)
+                        .collect(Collectors.toList());
+                    List<TitreDTO> titres = getTitres().stream().filter(t -> titresIds.contains(t.getId())).collect(Collectors.toList());
+                    album.setTitres(titres);
 
                     album.setTaille(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TAILLE")).getStringCellValue());
                     album.setStatus(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "STATUS")).getStringCellValue());
@@ -373,7 +364,7 @@ public class TemporaryDataStoreService {
         row.createCell(getPositionOfKey(TITRE_COLUMNS, "ARTISTE_IDS")).setCellValue(artistesIds);
     }
 
-    private void updateAlbumRow(Row row, AlbumFormDTO album) {
+    private void updateAlbumRow(Row row, AlbumFormDTO album, Workbook workbook) throws IOException {
         row.createCell(getPositionOfKey(ALBUM_COLUMNS, "ID")).setCellValue(album.getId());
         row.createCell(getPositionOfKey(ALBUM_COLUMNS, "NOM")).setCellValue(album.getNom());
 
@@ -386,8 +377,12 @@ public class TemporaryDataStoreService {
 
         // Concatène les IDs des titres en chaîne de caractères
         String titresIds = "";
-        if (album.getTitresIds() != null) {
-            titresIds = String.join(",", album.getTitresIds().stream().map(String::valueOf).toList());
+        if (album.getTitres() != null) {
+            for (TitreDTO titre : album.getTitres()) {
+                titre = this.saveTitre(titre, workbook);
+            }
+
+            titresIds = String.join(",", album.getTitres().stream().map(TitreDTO::getId).map(String::valueOf).toList());
         }
         row.createCell(getPositionOfKey(ALBUM_COLUMNS, "TITRE_IDS")).setCellValue(titresIds);
 
@@ -449,7 +444,7 @@ public class TemporaryDataStoreService {
                 .setCellValue(String.join(",", album.getArtistesIds().stream().map(String::valueOf).toList()));
             row
                 .createCell(getPositionOfKey(ALBUM_COLUMNS, "TITRE_IDS"))
-                .setCellValue(String.join(",", album.getTitresIds().stream().map(String::valueOf).toList()));
+                .setCellValue(String.join(",", album.getTitres().stream().map(String::valueOf).toList()));
             row.createCell(getPositionOfKey(ALBUM_COLUMNS, "TAILLE")).setCellValue(album.getTaille());
             row.createCell(getPositionOfKey(ALBUM_COLUMNS, "STATUS")).setCellValue(album.getStatus());
             row.createCell(getPositionOfKey(ALBUM_COLUMNS, "IMAGE")).setCellValue(album.getImage());

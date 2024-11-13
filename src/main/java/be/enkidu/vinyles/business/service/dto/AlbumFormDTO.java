@@ -8,7 +8,7 @@ public class AlbumFormDTO {
     private String image;
     private String nom;
     private List<Long> artistesIds;
-    private List<Long> titresIds;
+    private List<TitreDTO> titres;
     private String taille;
     private String status;
 
@@ -44,12 +44,12 @@ public class AlbumFormDTO {
         this.artistesIds = artistesIds;
     }
 
-    public List<Long> getTitresIds() {
-        return titresIds;
+    public List<TitreDTO> getTitres() {
+        return titres;
     }
 
-    public void setTitresIds(List<Long> titresIds) {
-        this.titresIds = titresIds;
+    public void setTitres(List<TitreDTO> titres) {
+        this.titres = titres;
     }
 
     public String getTaille() {

@@ -8,6 +8,7 @@ public class TitreDTO {
     private String nom;
     private Integer duree;
     private List<Long> artistesIds;
+    private int ordre;
 
     // Getters et Setters
     public Long getId() {
@@ -40,5 +41,13 @@ public class TitreDTO {
 
     public void setArtistesIds(List<Long> artistesIds) {
         this.artistesIds = artistesIds;
+    }
+
+    public int getOrdre() {
+        return ordre;
+    }
+
+    public void setOrdre(int ordre) {
+        this.ordre = ordre;
     }
 }

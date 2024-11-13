@@ -9,10 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -141,7 +139,7 @@ public class ExcelService {
         return titres;
     }
 
-    private List<AlbumFormDTO> readAlbumsSheet(Sheet sheet) {
+    private List<AlbumFormDTO> readAlbumsSheet(Sheet sheet) throws IOException {
         List<AlbumFormDTO> albums = new ArrayList<>();
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
@@ -161,14 +159,17 @@ public class ExcelService {
             album.setArtistesIds(artistesIds);
 
             // Extraction des IDs des titres
-            String[] titresIdsStr = row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TITRE_IDS")).getStringCellValue().split(",");
-            List<Long> titresIds = new ArrayList<>();
-            for (String idStr : titresIdsStr) {
-                if (StringUtils.isNotBlank(idStr)) {
-                    titresIds.add(Long.parseLong(idStr.trim()));
-                }
-            }
-            album.setTitresIds(titresIds);
+            String titresIdsStr = row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TITRE_IDS")).getStringCellValue();
+            List<Long> titresIds = Arrays.stream(titresIdsStr.split(","))
+                .filter(StringUtils::isNotBlank)
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+            List<TitreDTO> titres = titreService
+                .getTitres()
+                .stream()
+                .filter(t -> titresIds.contains(t.getId()))
+                .collect(Collectors.toList());
+            album.setTitres(titres);
 
             album.setTaille(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TAILLE")).getStringCellValue());
             album.setStatus(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "STATUS")).getStringCellValue());
