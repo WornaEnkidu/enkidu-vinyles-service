@@ -31,18 +31,23 @@ jobs:
           JAR_FILE=$(ls target/enkidu-vinyles-service-*.jar | head -n 1)
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
 
+      - name: Create SSH Key File
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
       - name: Copy .jar to server
         env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
           JAR_FILE: ${{ env.JAR_FILE }}
         run: |
-          scp -o StrictHostKeyChecking=no -i "$SSH_KEY" "$JAR_FILE" debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$JAR_FILE" debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
 
       - name: Deploy on Server
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" debian@51.254.114.210 << 'ENDSSH'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa debian@51.254.114.210 << 'ENDSSH'
             cd /home/debian/enkidu-vinyles-service/
 
             # Stop existing container if any
