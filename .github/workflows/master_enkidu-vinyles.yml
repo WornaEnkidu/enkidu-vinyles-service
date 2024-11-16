@@ -19,6 +19,9 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
+      - name: Make Maven Wrapper Executable
+        run: chmod +x ./mvnw
+
       - name: Build with Maven
         run: ./mvnw clean package -Pprod
 
