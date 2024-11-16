@@ -5,7 +5,7 @@
 
     <groupId>be.enkidu.vinyles</groupId>
     <artifactId>enkidu-vinyles-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2</version>
     <packaging>jar</packaging>
     <name>Enkidu Vinyles Service</name>
     <description>Description for Enkidu Vinyles Service</description>

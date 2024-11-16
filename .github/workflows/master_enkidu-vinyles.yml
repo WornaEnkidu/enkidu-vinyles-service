@@ -1,0 +1,47 @@
+name: Deploy Service
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Build with Maven
+        run: ./mvnw clean package -Pprod
+
+      - name: Copy .jar to server
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          scp -o StrictHostKeyChecking=no -i "$SSH_KEY" target/enkidu-vinyles-service-0.0.1-SNAPSHOT.jar debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
+
+      - name: Deploy on Server
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" debian@51.254.114.210 << 'ENDSSH'
+            cd /home/debian/enkidu-vinyles-service/
+
+            # Stop existing container if any
+            CONTAINER_ID=$(docker ps -q --filter ancestor=enkidu-vinyles-service)
+            if [ -n "$CONTAINER_ID" ]; then
+              docker stop "$CONTAINER_ID"
+            fi
+
+            # Build and run the Docker container
+            docker build -t enkidu-vinyles-service .
+            docker run -d -p 8080:8080 enkidu-vinyles-service
+          ENDSSH
