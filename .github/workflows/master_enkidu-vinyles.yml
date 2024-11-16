@@ -29,6 +29,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
+          ls -l
           echo "$SSH_KEY" > .ssh/id_rsa
           chmod 600 .ssh/id_rsa
           ls -l .ssh/ # Affiche le contenu du répertoire .ssh pour vérification
