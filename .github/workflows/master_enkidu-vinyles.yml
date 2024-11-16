@@ -38,14 +38,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-      - name: Copy .jar to server
-        env:
-          JAR_FILE: ${{ env.JAR_FILE }}
-        run: |
-          echo "$JAR_FILE"
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$JAR_FILE" debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
-
+          
       - name: Create Dockerfile with Correct JAR
         env:
           JAR_FILE: ${{ env.JAR_FILE }}
@@ -63,6 +56,12 @@ jobs:
           # Vérification du contenu généré dans le Dockerfile
           echo "Generated Dockerfile:"
           cat Dockerfile
+
+      - name: Copy Files to Server
+        env:
+          JAR_FILE: ${{ env.JAR_FILE }}
+        run: |
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$JAR_FILE" Dockerfile debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
 
       - name: Deploy on Server
         run: |
