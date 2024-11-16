@@ -44,8 +44,7 @@ jobs:
           JAR_FILE: ${{ env.JAR_FILE }}
         run: |
           echo "$JAR_FILE"
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$JAR_FILE" debian@51.254.114.210:/home/debian/enkidu-vinyles-service/ .
-
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$JAR_FILE" debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
       - name: Deploy on Server
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa debian@51.254.114.210 << 'ENDSSH'
