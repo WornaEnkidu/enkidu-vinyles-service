@@ -43,7 +43,7 @@ jobs:
           
       - name: Create Dockerfile with Correct JAR
         env:
-          $BASENAME_JAR_FILE: ${{ env.$BASENAME_JAR_FILE }}
+          BASENAME_JAR_FILE: ${{ env.$BASENAME_JAR_FILE }}
         run: |
           echo "Building Dockerfile dynamically with the correct .jar file..."
 
