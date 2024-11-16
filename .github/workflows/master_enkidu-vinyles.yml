@@ -50,7 +50,7 @@ jobs:
         env:
           JAR_FILE: ${{ env.JAR_FILE }}
         run: |
-          echo "Building Dockerfile dynamically with the correct .jar file..."
+          echo "Building Dockerfile dynamically with the correct .jar file ..."
           echo "FROM openjdk:17-jdk-slim" > Dockerfile
           echo "COPY target/$JAR_FILE /app.jar" >> Dockerfile
           echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
