@@ -57,7 +57,7 @@ jobs:
 
           # Génération dynamique du Dockerfile
           echo "FROM openjdk:17-jdk-slim" > Dockerfile
-          echo "COPY target/$JAR_FILE /app.jar" >> Dockerfile
+          echo "COPY $JAR_FILE /app.jar" >> Dockerfile
           echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
 
           # Vérification du contenu généré dans le Dockerfile
