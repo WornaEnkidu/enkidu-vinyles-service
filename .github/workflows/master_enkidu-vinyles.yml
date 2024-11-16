@@ -47,6 +47,8 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$JAR_FILE" debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
 
       - name: Create Dockerfile with Correct JAR
+        env:
+          JAR_FILE: ${{ env.JAR_FILE }}
         run: |
           echo "Building Dockerfile dynamically with the correct .jar file..."
           echo "FROM openjdk:17-jdk-slim" > Dockerfile
@@ -54,8 +56,6 @@ jobs:
           echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
 
       - name: Deploy on Server
-        env:
-          JAR_FILE: ${{ env.JAR_FILE }}
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa debian@51.254.114.210 << 'ENDSSH'
             cd /home/debian/enkidu-vinyles-service/
