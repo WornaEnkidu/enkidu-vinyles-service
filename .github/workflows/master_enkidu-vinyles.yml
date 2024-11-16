@@ -46,6 +46,13 @@ jobs:
           echo "$JAR_FILE"
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "$JAR_FILE" debian@51.254.114.210:/home/debian/enkidu-vinyles-service/
 
+      - name: Create Dockerfile with Correct JAR
+        run: |
+          echo "Building Dockerfile dynamically with the correct .jar file..."
+          echo "FROM openjdk:17-jdk-slim" > Dockerfile
+          echo "COPY $(basename $JAR_FILE) /app.jar" >> Dockerfile
+          echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
+
       - name: Deploy on Server
         env:
           JAR_FILE: ${{ env.JAR_FILE }}
@@ -60,9 +67,6 @@ jobs:
             fi
 
             # Build and run the Docker container
-            echo "Copying correct .jar file and starting Docker build..."
-            echo "COPY $JAR_FILE app.jar" > Dockerfile
-            echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
             docker build -t enkidu-vinyles-service .
             docker run -d -p 8080:8080 enkidu-vinyles-service
           ENDSSH
