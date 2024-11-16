@@ -29,8 +29,10 @@ jobs:
         id: get_jar
         run: |
           JAR_FILE=$(ls target/enkidu-vinyles-service-*.jar | head -n 1)
+          BASENAME_JAR_FILE=$(basename $JAR_FILE)
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
-
+          echo "BASENAME_JAR_FILE=$BASENAME_JAR_FILE" >> $GITHUB_ENV
+          
       - name: Create SSH Key File
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
@@ -41,16 +43,16 @@ jobs:
           
       - name: Create Dockerfile with Correct JAR
         env:
-          JAR_FILE: ${{ env.JAR_FILE }}
+          $BASENAME_JAR_FILE: ${{ env.$BASENAME_JAR_FILE }}
         run: |
           echo "Building Dockerfile dynamically with the correct .jar file..."
 
           # Vérification de la variable JAR_FILE
-          echo "JAR file to be used: $JAR_FILE"
+          echo "JAR file to be used: $BASENAME_JAR_FILE"
 
           # Génération dynamique du Dockerfile
           echo "FROM openjdk:17-jdk-slim" > Dockerfile
-          echo "COPY $JAR_FILE /app.jar" >> Dockerfile
+          echo "COPY $BASENAME_JAR_FILE /app.jar" >> Dockerfile
           echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
 
           # Vérification du contenu généré dans le Dockerfile
