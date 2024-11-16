@@ -104,8 +104,8 @@ public class EnhancedAlbumPdfGenerator {
                 try {
                     ImageData imageData = ImageDataFactory.create(album.getImage());
                     Image albumImage = new Image(imageData);
-                    albumImage.setMaxWidth(100); // Largeur fixe de 100 points
-                    albumImage.setHeight(100); // Hauteur fixe de 100 points
+                    albumImage.setMaxWidth(100);
+                    albumImage.setHeight(100);
                     albumImage.setAutoScale(false); // Désactiver l'auto-scale pour conserver les dimensions fixes
 
                     // Ajouter l'image dans la première cellule de la table
