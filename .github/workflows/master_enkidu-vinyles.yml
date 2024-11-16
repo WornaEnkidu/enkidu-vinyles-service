@@ -52,7 +52,7 @@ jobs:
         run: |
           echo "Building Dockerfile dynamically with the correct .jar file..."
           echo "FROM openjdk:17-jdk-slim" > Dockerfile
-          echo "COPY $(basename $JAR_FILE) /app.jar" >> Dockerfile
+          echo "COPY target"$JAR_FILE" /app.jar" >> Dockerfile
           echo "ENTRYPOINT [\"java\", \"-jar\", \"/app.jar\"]" >> Dockerfile
 
       - name: Deploy on Server
