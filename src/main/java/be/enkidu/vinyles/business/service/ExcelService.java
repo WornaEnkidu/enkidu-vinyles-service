@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -23,18 +24,11 @@ public class ExcelService {
     private final ArtisteService artisteService;
     private final TitreService titreService;
     private final AlbumService albumService;
-    private final TemporaryDataStoreService temporaryDataStoreService;
 
-    public ExcelService(
-        ArtisteService artisteService,
-        TitreService titreService,
-        AlbumService albumService,
-        TemporaryDataStoreService temporaryDataStoreService
-    ) {
+    public ExcelService(ArtisteService artisteService, TitreService titreService, AlbumService albumService) {
         this.artisteService = artisteService;
         this.titreService = titreService;
         this.albumService = albumService;
-        this.temporaryDataStoreService = temporaryDataStoreService;
     }
 
     public byte[] exportDataToExcel() throws IOException {
@@ -52,16 +46,19 @@ public class ExcelService {
         }
     }
 
+    @Transactional
     public void saveData(MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
             Workbook workbook = new XSSFWorkbook(inputStream);
 
             List<ArtisteDTO> artistes = readArtistesSheet(workbook.getSheet("Artistes"));
             List<TitreDTO> titres = readTitresSheet(workbook.getSheet("Titres"));
-            List<AlbumFormDTO> albums = readAlbumsSheet(workbook.getSheet("Albums"));
+            List<AlbumFormDTO> albums = readAlbumsSheet(workbook.getSheet("Albums"), titres);
 
             workbook.close();
-            this.temporaryDataStoreService.saveData(artistes, titres, albums);
+
+            this.artisteService.deleteAllAndsave(artistes);
+            this.albumService.deleteAllAndsave(albums);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,7 +136,7 @@ public class ExcelService {
         return titres;
     }
 
-    private List<AlbumFormDTO> readAlbumsSheet(Sheet sheet) throws IOException {
+    private List<AlbumFormDTO> readAlbumsSheet(Sheet sheet, List<TitreDTO> titres) {
         List<AlbumFormDTO> albums = new ArrayList<>();
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
@@ -164,12 +161,8 @@ public class ExcelService {
                 .filter(StringUtils::isNotBlank)
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-            List<TitreDTO> titres = titreService
-                .getTitres()
-                .stream()
-                .filter(t -> titresIds.contains(t.getId()))
-                .collect(Collectors.toList());
-            album.setTitres(titres);
+            List<TitreDTO> titresAlbum = titres.stream().filter(t -> titresIds.contains(t.getId())).collect(Collectors.toList());
+            album.setTitres(titresAlbum);
 
             album.setTaille(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "TAILLE")).getStringCellValue());
             album.setStatus(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "STATUS")).getStringCellValue());

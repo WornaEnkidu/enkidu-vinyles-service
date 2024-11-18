@@ -2,23 +2,27 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.TITRE_COLUMNS;
 
-import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
+import be.enkidu.vinyles.business.repository.TitreRepository;
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
-import java.io.IOException;
+import be.enkidu.vinyles.business.service.mapper.TitreMapper;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TitreService {
 
-    private TemporaryDataStoreService temporaryDataStoreService;
+    private final TitreRepository titreRepository;
+    private final TitreMapper titreMapper;
 
-    public TitreService(TemporaryDataStoreService temporaryDataStoreService) {
-        this.temporaryDataStoreService = temporaryDataStoreService;
+    public TitreService(TitreRepository titreRepository, TitreMapper titreMapper) {
+        this.titreRepository = titreRepository;
+        this.titreMapper = titreMapper;
     }
 
-    public List<Map<String, String>> exportTitres() throws IOException {
-        List<TitreDTO> titresDTO = this.temporaryDataStoreService.getTitres(); // Récupère la liste des DTO
+    public List<Map<String, String>> exportTitres() {
+        List<TitreDTO> titresDTO = this.titreRepository.findAll().stream().map(titreMapper::toDto).collect(Collectors.toList());
+
         List<Map<String, String>> titresMap = new ArrayList<>();
 
         for (TitreDTO titre : titresDTO) {
@@ -37,7 +41,11 @@ public class TitreService {
                         titreMap.put("DUREE", duree);
                     }
                     case "ARTISTE_IDS" -> {
-                        String artistesIds = String.join(",", titre.getArtistesIds().stream().map(String::valueOf).toList());
+                        String artistesIds = "";
+
+                        if (titre.getArtistesIds() != null) {
+                            artistesIds = String.join(",", titre.getArtistesIds().stream().map(String::valueOf).toList());
+                        }
                         titreMap.put("ARTISTE_IDS", artistesIds);
                     }
                 }
@@ -49,21 +57,7 @@ public class TitreService {
         return titresMap;
     }
 
-    public List<TitreDTO> getTitres() throws IOException {
-        return this.temporaryDataStoreService.getTitres();
-    }
-
-    public TitreDTO saveTitre(TitreDTO titreDTO) throws IOException {
-        return this.temporaryDataStoreService.saveTitre(titreDTO, null);
-    }
-
-    public TitreDTO getTitre(Long id) throws IOException, RessourceNotFoundException {
-        List<TitreDTO> titres = this.temporaryDataStoreService.getTitres();
-
-        return titres
-            .stream()
-            .filter(a -> a.getId() != null && a.getId().equals(id))
-            .findFirst()
-            .orElseThrow(() -> new RessourceNotFoundException("Titre not found"));
+    public List<TitreDTO> getTitres() {
+        return this.titreRepository.findAll().stream().map(titreMapper::toDto).collect(Collectors.toList());
     }
 }

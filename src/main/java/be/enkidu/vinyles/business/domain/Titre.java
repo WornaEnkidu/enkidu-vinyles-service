@@ -4,6 +4,7 @@ import be.enkidu.vinyles.base.domain.AbstractAuditingEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,7 +16,7 @@ public class Titre extends AbstractAuditingEntity implements Serializable {
     private Integer duree;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<Artiste> artistes;
+    private List<Artiste> artistes = new ArrayList<>();
 
     private int ordre;
 

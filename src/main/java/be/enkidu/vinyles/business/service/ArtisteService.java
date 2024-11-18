@@ -2,39 +2,45 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ARTISTE_COLUMNS;
 
+import be.enkidu.vinyles.business.domain.Artiste;
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.repository.ArtisteRepository;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import be.enkidu.vinyles.business.service.mapper.ArtisteMapper;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ArtisteService {
 
-    private TemporaryDataStoreService temporaryDataStoreService;
-    private ArtisteMapper artisteMapper;
-    private ArtisteRepository artisteRepository;
+    private final ArtisteMapper artisteMapper;
+    private final ArtisteRepository artisteRepository;
 
-    public ArtisteService(
-        TemporaryDataStoreService temporaryDataStoreService,
-        ArtisteMapper artisteMapper,
-        ArtisteRepository artisteRepository
-    ) {
-        this.temporaryDataStoreService = temporaryDataStoreService;
+    public ArtisteService(ArtisteMapper artisteMapper, ArtisteRepository artisteRepository) {
         this.artisteMapper = artisteMapper;
         this.artisteRepository = artisteRepository;
     }
 
-    public ArtisteDTO saveArtiste(ArtisteDTO artisteDTO) throws IOException {
-        this.artisteRepository.save(artisteMapper.toEntity(artisteDTO));
-        return this.temporaryDataStoreService.saveArtiste(artisteDTO);
+    @Transactional
+    public void deleteAllAndsave(List<ArtisteDTO> artistes) {
+        this.artisteRepository.deleteAll();
+
+        List<Artiste> artisteList = artistes.stream().map(artisteMapper::toEntity).collect(Collectors.toList());
+
+        this.artisteRepository.saveAll(artisteList);
     }
 
-    public List<Map<String, String>> exportArtistes() throws IOException {
-        List<ArtisteDTO> artistesDTO = this.temporaryDataStoreService.getArtistes(); // Récupère la liste des DTO
+    public ArtisteDTO saveArtiste(ArtisteDTO artisteDTO) {
+        Artiste savedArtiste = this.artisteRepository.save(artisteMapper.toEntity(artisteDTO));
+        return artisteMapper.toDto(savedArtiste);
+    }
+
+    public List<Map<String, String>> exportArtistes() {
+        List<ArtisteDTO> artistesDTO = this.artisteRepository.findAll().stream().map(artisteMapper::toDto).collect(Collectors.toList());
+
         List<Map<String, String>> artistesMap = new ArrayList<>();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -67,17 +73,13 @@ public class ArtisteService {
         return artistesMap;
     }
 
-    public List<ArtisteDTO> getArtistes() throws IOException {
-        return this.temporaryDataStoreService.getArtistes();
+    public List<ArtisteDTO> getArtistes() {
+        return this.artisteRepository.findAll().stream().map(artisteMapper::toDto).collect(Collectors.toList());
     }
 
-    public ArtisteDTO getArtiste(Long id) throws IOException, RessourceNotFoundException {
-        List<ArtisteDTO> artistes = this.temporaryDataStoreService.getArtistes();
-
-        return artistes
-            .stream()
-            .filter(a -> a.getId() != null && a.getId().equals(id))
-            .findFirst()
+    public ArtisteDTO getArtiste(Long id) throws RessourceNotFoundException {
+        return this.artisteRepository.findById(id)
+            .map(artisteMapper::toDto)
             .orElseThrow(() -> new RessourceNotFoundException("Artiste not found"));
     }
 }

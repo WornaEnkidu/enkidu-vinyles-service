@@ -5,6 +5,7 @@ import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,8 +19,8 @@ public class Album extends AbstractAuditingEntity implements Serializable {
     @OneToMany(fetch = FetchType.LAZY)
     private List<Artiste> artistes;
 
-    @OneToMany(mappedBy = "album", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Titre> titres;
+    @OneToMany(mappedBy = "album", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Titre> titres = new ArrayList<>();
 
     private String taille;
 

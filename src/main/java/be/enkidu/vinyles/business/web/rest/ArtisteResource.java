@@ -3,7 +3,6 @@ package be.enkidu.vinyles.business.web.rest;
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.service.ArtisteService;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
-import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,12 +28,7 @@ public class ArtisteResource {
      */
     @PostMapping
     public ResponseEntity<ArtisteDTO> saveArtiste(@RequestBody ArtisteDTO artisteDTO) {
-        try {
-            ArtisteDTO savedArtiste = artisteService.saveArtiste(artisteDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedArtiste);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(artisteService.saveArtiste(artisteDTO));
     }
 
     /**
@@ -44,12 +38,7 @@ public class ArtisteResource {
      */
     @GetMapping
     public ResponseEntity<List<ArtisteDTO>> getArtistes() {
-        try {
-            List<ArtisteDTO> artistes = artisteService.getArtistes();
-            return ResponseEntity.ok(artistes);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(artisteService.getArtistes());
     }
 
     /**
@@ -65,8 +54,6 @@ public class ArtisteResource {
             return ResponseEntity.ok(artiste);
         } catch (RessourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

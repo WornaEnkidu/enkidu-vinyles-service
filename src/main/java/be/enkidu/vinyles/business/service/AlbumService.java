@@ -2,40 +2,45 @@ package be.enkidu.vinyles.business.service;
 
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ALBUM_COLUMNS;
 
+import be.enkidu.vinyles.business.domain.Album;
+import be.enkidu.vinyles.business.domain.Titre;
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
+import be.enkidu.vinyles.business.repository.AlbumRepository;
+import be.enkidu.vinyles.business.repository.TitreRepository;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
 import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
+import be.enkidu.vinyles.business.service.mapper.AlbumMapper;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AlbumService {
 
-    private TemporaryDataStoreService temporaryDataStoreService;
-    private final ArtisteService artisteService;
-    private final TitreService titreService;
+    private final AlbumMapper albumMapper;
+    private final AlbumRepository albumRepository;
+    private final TitreRepository titreRepository;
     private final EnhancedAlbumPdfGenerator pdfGenerator;
 
     public AlbumService(
-        TemporaryDataStoreService temporaryDataStoreService,
-        ArtisteService artisteService,
-        TitreService titreService,
+        AlbumMapper albumMapper,
+        AlbumRepository albumRepository,
+        TitreRepository titreRepository,
         EnhancedAlbumPdfGenerator pdfGenerator
     ) {
-        this.temporaryDataStoreService = temporaryDataStoreService;
-        this.artisteService = artisteService;
-        this.titreService = titreService;
+        this.albumMapper = albumMapper;
+        this.albumRepository = albumRepository;
+        this.titreRepository = titreRepository;
         this.pdfGenerator = pdfGenerator;
     }
 
-    public List<Map<String, String>> exportAlbums() throws IOException {
-        List<AlbumFormDTO> albumsDTO = this.temporaryDataStoreService.getAlbums();
+    public List<Map<String, String>> exportAlbums() {
+        List<AlbumFormDTO> albumsDTO = this.getAlbumFormDTOs();
         List<Map<String, String>> albumsMap = new ArrayList<>();
 
         for (AlbumFormDTO album : albumsDTO) {
@@ -64,51 +69,33 @@ public class AlbumService {
         return albumsMap;
     }
 
-    public List<AlbumFormDTO> getAlbumDTOs() throws IOException {
-        return this.temporaryDataStoreService.getAlbums();
+    public List<AlbumFormDTO> getAlbumFormDTOs() {
+        return this.albumRepository.findAll().stream().map(albumMapper::toDto).collect(Collectors.toList());
     }
 
-    public List<AlbumDTO> getAlbums() throws IOException {
-        List<AlbumFormDTO> formDTOS = this.temporaryDataStoreService.getAlbums();
-        List<AlbumDTO> albums = new ArrayList<>();
-        for (AlbumFormDTO albumForm : formDTOS) {
-            AlbumDTO albumDTO = new AlbumDTO();
-            albumDTO.setId(albumForm.getId());
-            albumDTO.setNom(albumForm.getNom());
-            albumDTO.setImage(albumForm.getImage());
-            albumDTO.setStatus(albumForm.getStatus());
-            albumDTO.setTaille(albumForm.getTaille());
-            albumDTO.setArtistes(new ArrayList<>());
-            albumDTO.setTitres(albumForm.getTitres());
+    @Transactional
+    public void deleteAllAndsave(List<AlbumFormDTO> albums) {
+        this.albumRepository.deleteAll();
+        this.titreRepository.deleteAll();
 
-            if (albumForm.getArtistesIds() != null) {
-                for (long id : albumForm.getArtistesIds()) {
-                    albumDTO.getArtistes().add(this.artisteService.getArtiste(id));
-                }
-            }
-            albums.add(albumDTO);
-        }
-        return albums;
+        List<Album> albumList = albums.stream().map(albumMapper::toEntity).collect(Collectors.toList());
+
+        this.albumRepository.saveAll(albumList);
     }
 
-    public AlbumFormDTO saveAlbum(AlbumFormDTO albumFormDTO) throws IOException {
-        AtomicInteger index = new AtomicInteger(1); // Initialise l'index à 1
-        albumFormDTO.getTitres().forEach(t -> t.setOrdre(index.getAndIncrement()));
-        return this.temporaryDataStoreService.saveAlbum(albumFormDTO);
+    public AlbumFormDTO saveAlbum(AlbumFormDTO albumFormDTO) {
+        Album savedAlbum = this.albumRepository.save(this.albumMapper.toEntity(albumFormDTO));
+        return albumMapper.toDto(savedAlbum);
     }
 
-    public AlbumFormDTO getAlbum(Long id) throws IOException, RessourceNotFoundException {
-        List<AlbumFormDTO> albums = this.temporaryDataStoreService.getAlbums();
-
-        return albums
-            .stream()
-            .filter(a -> a.getId() != null && a.getId().equals(id))
-            .findFirst()
+    public AlbumFormDTO getAlbum(Long id) throws RessourceNotFoundException {
+        return this.albumRepository.findById(id)
+            .map(albumMapper::toDto)
             .orElseThrow(() -> new RessourceNotFoundException("Album not found"));
     }
 
-    public byte[] generateAlbumsPdf() throws IOException {
-        List<AlbumDTO> albums = getAlbums();
+    public byte[] generateAlbumsPdf() {
+        List<AlbumDTO> albums = this.albumRepository.findAll().stream().map(albumMapper::toAlbumDto).collect(Collectors.toList());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pdfGenerator.generateAlbumPdf(baos, albums);
