@@ -20,13 +20,9 @@ import org.hibernate.annotations.BatchSize;
  */
 @Entity
 @Table(name = "jhi_user")
-public class User extends AbstractAuditingEntity<Long> implements Serializable {
+public class User extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @NotNull
     @Pattern(regexp = Constants.LOGIN_REGEX)
@@ -87,14 +83,6 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     )
     @BatchSize(size = 20)
     private Set<Authority> authorities = new HashSet<>();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getLogin() {
         return login;

@@ -1,9 +1,7 @@
 package be.enkidu.vinyles.base.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 import org.springframework.data.annotation.CreatedBy;
@@ -19,11 +17,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = { "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate" }, allowGetters = true)
-public abstract class AbstractAuditingEntity<T> implements Serializable {
+public abstract class AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public abstract T getId();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected Long id;
 
     @CreatedBy
     @Column(name = "created_by", nullable = false, length = 50, updatable = false)
@@ -40,6 +40,14 @@ public abstract class AbstractAuditingEntity<T> implements Serializable {
     @LastModifiedDate
     @Column(name = "last_modified_date")
     private Instant lastModifiedDate = Instant.now();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getCreatedBy() {
         return createdBy;

@@ -3,7 +3,9 @@ package be.enkidu.vinyles.business.service;
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ARTISTE_COLUMNS;
 
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
+import be.enkidu.vinyles.business.repository.ArtisteRepository;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
+import be.enkidu.vinyles.business.service.mapper.ArtisteMapper;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -13,12 +15,21 @@ import org.springframework.stereotype.Service;
 public class ArtisteService {
 
     private TemporaryDataStoreService temporaryDataStoreService;
+    private ArtisteMapper artisteMapper;
+    private ArtisteRepository artisteRepository;
 
-    public ArtisteService(TemporaryDataStoreService temporaryDataStoreService) {
+    public ArtisteService(
+        TemporaryDataStoreService temporaryDataStoreService,
+        ArtisteMapper artisteMapper,
+        ArtisteRepository artisteRepository
+    ) {
         this.temporaryDataStoreService = temporaryDataStoreService;
+        this.artisteMapper = artisteMapper;
+        this.artisteRepository = artisteRepository;
     }
 
     public ArtisteDTO saveArtiste(ArtisteDTO artisteDTO) throws IOException {
+        this.artisteRepository.save(artisteMapper.toEntity(artisteDTO));
         return this.temporaryDataStoreService.saveArtiste(artisteDTO);
     }
 
