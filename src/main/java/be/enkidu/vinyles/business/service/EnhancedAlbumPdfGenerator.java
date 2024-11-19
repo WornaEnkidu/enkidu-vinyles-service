@@ -160,7 +160,7 @@ public class EnhancedAlbumPdfGenerator {
             for (TitreDTO titreDTO : album.getTitres()) {
                 trackTable.addCell(createStyledCell(String.valueOf(trackIndex++), ColorConstants.WHITE, false));
                 trackTable.addCell(createStyledCell(titreDTO.getNom(), ColorConstants.WHITE, false));
-                trackTable.addCell(createStyledCell(String.valueOf(titreDTO.getDuree()), ColorConstants.WHITE, false));
+                trackTable.addCell(createStyledCell(formatDuration(titreDTO.getDuree()), ColorConstants.WHITE, false));
             }
 
             document.add(trackTable);
@@ -233,5 +233,16 @@ public class EnhancedAlbumPdfGenerator {
 
             canvas.release();
         }
+    }
+
+    public static String formatDuration(Integer value) {
+        if (value == null || value < 0) {
+            return "00:00";
+        }
+
+        int minutes = value / 60;
+        int seconds = value % 60;
+
+        return String.format("%02d:%02d", minutes, seconds);
     }
 }
