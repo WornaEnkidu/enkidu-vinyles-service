@@ -3,10 +3,11 @@ package be.enkidu.vinyles.business.service;
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ALBUM_COLUMNS;
 
 import be.enkidu.vinyles.business.domain.Album;
-import be.enkidu.vinyles.business.domain.Titre;
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.repository.AlbumRepository;
 import be.enkidu.vinyles.business.repository.TitreRepository;
+import be.enkidu.vinyles.business.repository.critere.AlbumCritere;
+import be.enkidu.vinyles.business.repository.specification.AlbumSpecification;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
 import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
 import be.enkidu.vinyles.business.service.mapper.AlbumMapper;
@@ -40,7 +41,7 @@ public class AlbumService {
     }
 
     public List<Map<String, String>> exportAlbums() {
-        List<AlbumFormDTO> albumsDTO = this.getAlbumFormDTOs();
+        List<AlbumFormDTO> albumsDTO = this.getAlbumFormDTOs(null);
         List<Map<String, String>> albumsMap = new ArrayList<>();
 
         for (AlbumFormDTO album : albumsDTO) {
@@ -69,8 +70,8 @@ public class AlbumService {
         return albumsMap;
     }
 
-    public List<AlbumFormDTO> getAlbumFormDTOs() {
-        return this.albumRepository.findAll().stream().map(albumMapper::toDto).collect(Collectors.toList());
+    public List<AlbumFormDTO> getAlbumFormDTOs(AlbumCritere critere) {
+        return this.albumRepository.findAll(new AlbumSpecification(critere)).stream().map(albumMapper::toDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -94,8 +95,12 @@ public class AlbumService {
             .orElseThrow(() -> new RessourceNotFoundException("Album not found"));
     }
 
-    public byte[] generateAlbumsPdf() {
-        List<AlbumDTO> albums = this.albumRepository.findAll().stream().map(albumMapper::toAlbumDto).collect(Collectors.toList());
+    public byte[] generateAlbumsPdf(AlbumCritere critere) {
+        List<AlbumDTO> albums =
+            this.albumRepository.findAll(new AlbumSpecification(critere))
+                .stream()
+                .map(albumMapper::toAlbumDto)
+                .collect(Collectors.toList());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pdfGenerator.generateAlbumPdf(baos, albums);

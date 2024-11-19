@@ -1,6 +1,7 @@
 package be.enkidu.vinyles.business.web.rest;
 
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
+import be.enkidu.vinyles.business.repository.critere.AlbumCritere;
 import be.enkidu.vinyles.business.service.AlbumService;
 import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
 import java.util.List;
@@ -26,8 +27,8 @@ public class AlbumResource {
      * @return La liste des albums en tant que DTO.
      */
     @GetMapping
-    public ResponseEntity<List<AlbumFormDTO>> getAlbums() {
-        return ResponseEntity.ok(albumService.getAlbumFormDTOs());
+    public ResponseEntity<List<AlbumFormDTO>> getAlbums(AlbumCritere critere) {
+        return ResponseEntity.ok(albumService.getAlbumFormDTOs(critere));
     }
 
     /**
@@ -58,13 +59,13 @@ public class AlbumResource {
     }
 
     @GetMapping("/export/pdf")
-    public ResponseEntity<byte[]> generateAlbumsPdf() {
+    public ResponseEntity<byte[]> generateAlbumsPdf(AlbumCritere critere) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("attachment", "albums_catalogue.pdf");
 
-            return new ResponseEntity<>(albumService.generateAlbumsPdf(), headers, HttpStatus.OK);
+            return new ResponseEntity<>(albumService.generateAlbumsPdf(critere), headers, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
