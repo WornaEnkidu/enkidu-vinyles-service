@@ -23,6 +23,7 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -61,6 +62,7 @@ public class EnhancedAlbumPdfGenerator {
         albumTable.addHeaderCell(createStyledCell("N°", headerColor, true));
         albumTable.addHeaderCell(createStyledCell("Nom de l'album", headerColor, true));
         albumTable.addHeaderCell(createStyledCell("Artiste", headerColor, true));
+        albumTable.addHeaderCell(createStyledCell("Prix", headerColor, true));
 
         int albumIndex = 1;
         for (AlbumDTO album : albums) {
@@ -70,6 +72,7 @@ public class EnhancedAlbumPdfGenerator {
                 ? album.getArtistes().stream().map(ArtisteDTO::getNomArtiste).collect(Collectors.joining(", "))
                 : "";
             albumTable.addCell(createStyledCell(artistes, ColorConstants.WHITE, false));
+            albumTable.addCell(createStyledCell(formatPrice(album.getPrix()), ColorConstants.WHITE, false));
         }
 
         document.add(albumTable);
@@ -244,5 +247,14 @@ public class EnhancedAlbumPdfGenerator {
         int seconds = value % 60;
 
         return String.format("%02d:%02d", minutes, seconds);
+    }
+
+    public static String formatPrice(Double value) {
+        if (value == null || value < 0) {
+            return "0.00€";
+        }
+
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        return decimalFormat.format(value) + "€";
     }
 }
