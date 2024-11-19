@@ -168,6 +168,9 @@ public class ExcelService {
             album.setStatus(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "STATUS")).getStringCellValue());
             album.setImage(row.getCell(getPositionOfKey(ALBUM_COLUMNS, "IMAGE")).getStringCellValue());
 
+            String prix = row.getCell(getPositionOfKey(ALBUM_COLUMNS, "PRIX")).getStringCellValue();
+            album.setPrix(StringUtils.isNotBlank(prix) ? Double.parseDouble(prix) : 0);
+
             albums.add(album);
         }
         return albums;

@@ -11,6 +11,7 @@ public class AlbumFormDTO {
     private List<TitreDTO> titres;
     private String taille;
     private String status;
+    private Double prix;
 
     public Long getId() {
         return id;
@@ -66,5 +67,13 @@ public class AlbumFormDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getPrix() {
+        return prix;
+    }
+
+    public void setPrix(Double prix) {
+        this.prix = prix;
     }
 }

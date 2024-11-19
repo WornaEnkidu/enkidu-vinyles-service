@@ -41,6 +41,7 @@ public class ExcelColumnConstants {
         ALBUM_COLUMNS.put("TAILLE", "Taille");
         ALBUM_COLUMNS.put("STATUS", "Status");
         ALBUM_COLUMNS.put("IMAGE", "Image");
+        ALBUM_COLUMNS.put("PRIX", "Prix");
     }
 
     public static int getPositionOfKey(Map<String, String> map, String key) {

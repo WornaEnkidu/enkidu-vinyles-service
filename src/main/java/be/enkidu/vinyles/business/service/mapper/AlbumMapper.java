@@ -1,14 +1,13 @@
 package be.enkidu.vinyles.business.service.mapper;
 
 import be.enkidu.vinyles.business.domain.Album;
+import be.enkidu.vinyles.business.domain.Artiste;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
 import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.InjectionStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import java.util.stream.Collectors;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = { TitreMapper.class })
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = { TitreMapper.class, ArtisteMapper.class })
 public interface AlbumMapper extends EntityMapper<AlbumFormDTO, Album> {
     @AfterMapping
     default void linkAlbumToTitres(@MappingTarget Album album) {
@@ -18,4 +17,17 @@ public interface AlbumMapper extends EntityMapper<AlbumFormDTO, Album> {
     }
 
     AlbumDTO toAlbumDto(Album entity);
+
+    @AfterMapping
+    default void mapArtistesToIds(Album entity, @MappingTarget AlbumFormDTO dto) {
+        if (entity.getArtistes() != null) {
+            dto.setArtistesIds(
+                entity
+                    .getArtistes()
+                    .stream()
+                    .map(Artiste::getId) // Extraire les IDs
+                    .collect(Collectors.toList())
+            );
+        }
+    }
 }

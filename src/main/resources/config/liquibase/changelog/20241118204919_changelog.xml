@@ -16,6 +16,7 @@
             <column name="nom" type="VARCHAR(255)"/>
             <column name="status" type="VARCHAR(255)"/>
             <column name="taille" type="VARCHAR(255)"/>
+            <column name="prix" type="float(53)"/>
         </createTable>
     </changeSet>
     <changeSet author="Portable (generated)" id="1731962975716-6">

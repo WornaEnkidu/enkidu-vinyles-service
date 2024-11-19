@@ -26,6 +26,8 @@ public class Album extends AbstractAuditingEntity implements Serializable {
 
     private String status;
 
+    private Double prix;
+
     public String getImage() {
         return image;
     }
@@ -72,5 +74,13 @@ public class Album extends AbstractAuditingEntity implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getPrix() {
+        return prix;
+    }
+
+    public void setPrix(Double prix) {
+        this.prix = prix;
     }
 }

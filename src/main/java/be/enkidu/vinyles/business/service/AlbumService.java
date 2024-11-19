@@ -3,6 +3,7 @@ package be.enkidu.vinyles.business.service;
 import static be.enkidu.vinyles.business.service.constant.ExcelColumnConstants.ALBUM_COLUMNS;
 
 import be.enkidu.vinyles.business.domain.Album;
+import be.enkidu.vinyles.business.domain.Artiste;
 import be.enkidu.vinyles.business.excpetion.RessourceNotFoundException;
 import be.enkidu.vinyles.business.repository.AlbumRepository;
 import be.enkidu.vinyles.business.repository.TitreRepository;
@@ -10,6 +11,7 @@ import be.enkidu.vinyles.business.repository.critere.AlbumCritere;
 import be.enkidu.vinyles.business.repository.specification.AlbumSpecification;
 import be.enkidu.vinyles.business.service.dto.AlbumDTO;
 import be.enkidu.vinyles.business.service.dto.AlbumFormDTO;
+import be.enkidu.vinyles.business.service.dto.TitreDTO;
 import be.enkidu.vinyles.business.service.mapper.AlbumMapper;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
@@ -53,14 +55,21 @@ public class AlbumService {
                     case "TAILLE" -> albumMap.put("TAILLE", album.getTaille());
                     case "STATUS" -> albumMap.put("STATUS", album.getStatus() != null ? album.getStatus() : "");
                     case "ARTISTE_IDS" -> {
-                        String artistesIds = String.join(",", album.getArtistesIds().stream().map(String::valueOf).toList());
+                        String artistesIds = "";
+                        if (album.getArtistesIds() != null) {
+                            artistesIds = String.join(",", album.getArtistesIds().stream().map(String::valueOf).toList());
+                        }
                         albumMap.put("ARTISTE_IDS", artistesIds);
                     }
                     case "TITRE_IDS" -> {
-                        String titresIds = String.join(",", album.getTitres().stream().map(String::valueOf).toList());
+                        String titresIds = "";
+                        if (album.getTitres() != null) {
+                            titresIds = String.join(",", album.getTitres().stream().map(TitreDTO::getId).map(String::valueOf).toList());
+                        }
                         albumMap.put("TITRE_IDS", titresIds);
                     }
                     case "IMAGE" -> albumMap.put("IMAGE", album.getImage() != null ? album.getImage() : "");
+                    case "PRIX" -> albumMap.put("PRIX", album.getPrix() != null ? String.valueOf(album.getPrix()) : "");
                 }
             });
 
@@ -85,8 +94,22 @@ public class AlbumService {
     }
 
     public AlbumFormDTO saveAlbum(AlbumFormDTO albumFormDTO) {
-        Album savedAlbum = this.albumRepository.save(this.albumMapper.toEntity(albumFormDTO));
-        return albumMapper.toDto(savedAlbum);
+        Album album = this.albumMapper.toEntity(albumFormDTO);
+
+        album.setArtistes(
+            albumFormDTO
+                .getArtistesIds()
+                .stream()
+                .map(a -> {
+                    Artiste artiste = new Artiste();
+                    artiste.setId(a);
+                    return artiste;
+                })
+                .collect(Collectors.toList())
+        );
+
+        album = this.albumRepository.save(album);
+        return albumMapper.toDto(album);
     }
 
     public AlbumFormDTO getAlbum(Long id) throws RessourceNotFoundException {

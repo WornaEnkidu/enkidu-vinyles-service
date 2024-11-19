@@ -24,10 +24,12 @@ public class AlbumSpecification extends AbstractSpecification<Album> {
     public Predicate toPredicate(Root<Album> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
 
-        Optional.ofNullable(critere.getStatus())
-            .filter(StringUtils::isNotBlank)
-            .map(String::trim)
-            .ifPresent(status -> predicates.add(this.getStatusPredicate(root, cb, status)));
+        if (critere != null) {
+            Optional.ofNullable(critere.getStatus())
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .ifPresent(status -> predicates.add(this.getStatusPredicate(root, cb, status)));
+        }
 
         return and(cb, predicates);
     }

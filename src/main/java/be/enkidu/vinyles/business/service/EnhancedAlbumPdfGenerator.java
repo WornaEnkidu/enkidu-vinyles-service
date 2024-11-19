@@ -55,7 +55,7 @@ public class EnhancedAlbumPdfGenerator {
         document.add(new Paragraph(" ").setFontSize(10)); // Espace entre le titre et la liste
 
         // Liste des albums en table avec couleurs et style
-        Table albumTable = new Table(new float[] { 1, 3, 3 })
+        Table albumTable = new Table(new float[] { 1, 3, 3, 1 })
             .setWidth(UnitValue.createPercentValue(100))
             .setBackgroundColor(new DeviceRgb(240, 240, 240)); // Couleur de fond légère
 
@@ -74,6 +74,16 @@ public class EnhancedAlbumPdfGenerator {
             albumTable.addCell(createStyledCell(artistes, ColorConstants.WHITE, false));
             albumTable.addCell(createStyledCell(formatPrice(album.getPrix()), ColorConstants.WHITE, false));
         }
+
+        // Calculer le prix total des albums
+        double totalPrix = albums.stream().mapToDouble(album -> album.getPrix() != null ? album.getPrix() : 0.0).sum();
+
+        // Ajouter la ligne total au tableau des albums
+        Cell totalLabelCell = createStyledCell("Total", new DeviceRgb(63, 81, 181), true, 3);
+        albumTable.addCell(totalLabelCell);
+
+        Cell totalPrixCell = createStyledCell(formatPrice(totalPrix), new DeviceRgb(63, 81, 181), true);
+        albumTable.addCell(totalPrixCell);
 
         document.add(albumTable);
 
@@ -173,7 +183,11 @@ public class EnhancedAlbumPdfGenerator {
     }
 
     private Cell createStyledCell(String content, Color bgColor, boolean isHeader) {
-        Cell cell = new Cell().add(new Paragraph(content));
+        return createStyledCell(content, bgColor, isHeader, 1);
+    }
+
+    private Cell createStyledCell(String content, Color bgColor, boolean isHeader, int colspan) {
+        Cell cell = new Cell(1, colspan).add(new Paragraph(content));
         cell.setBackgroundColor(bgColor);
         cell.setBorder(Border.NO_BORDER);
         if (isHeader) {
