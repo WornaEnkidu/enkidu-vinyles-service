@@ -4,6 +4,7 @@ import be.enkidu.vinyles.base.domain.AbstractAuditingEntity;
 import be.enkidu.vinyles.business.service.dto.ArtisteDTO;
 import be.enkidu.vinyles.business.service.dto.TitreDTO;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.List;
 @Table(name = "t_album")
 public class Album extends AbstractAuditingEntity implements Serializable {
 
+    @Size(max = 14999)
+    @Column(length = 14999)
     private String image;
 
     private String nom;

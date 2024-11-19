@@ -4,6 +4,7 @@ import be.enkidu.vinyles.base.domain.AbstractAuditingEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -11,6 +12,8 @@ import java.util.Date;
 @Table(name = "t_artiste")
 public class Artiste extends AbstractAuditingEntity implements Serializable {
 
+    @Size(max = 14999)
+    @Column(length = 14999)
     private String image;
 
     @Column(name = "nom_artiste")
