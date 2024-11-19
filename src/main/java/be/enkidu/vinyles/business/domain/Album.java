@@ -16,7 +16,7 @@ public class Album extends AbstractAuditingEntity implements Serializable {
 
     private String nom;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Artiste> artistes;
 
     @OneToMany(mappedBy = "album", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
